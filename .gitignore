@@ -1,0 +1,23 @@
+/.bsp/
+target/
+
+# Node
+node_modules/
+*.tsbuildinfo
+
+# AWS CDK
+cdk.out/
+dist/
+
+# Gleam
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
