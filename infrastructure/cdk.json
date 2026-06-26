@@ -1,0 +1,9 @@
+{
+  "app": "ts-node --esm lib/main.ts",
+  "watch": {
+    "include": ["**"],
+    "exclude": ["README.md", "cdk*.json", "**/*.d.ts", "tsconfig.json", "tslint.json", "node_modules"]
+  },
+  "context": {}
+}
+

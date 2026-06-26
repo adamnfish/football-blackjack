@@ -1,0 +1,7 @@
+name = "football_blackjack_frontend"
+version = "0.1.0"
+
+[dependencies]
+lustre = ">= 5.7.0 and < 6.0.0"
+gleam_stdlib = ">= 1.0.3 and < 2.0.0"
+

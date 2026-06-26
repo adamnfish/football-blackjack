@@ -1,0 +1,8 @@
+{
+  "name": "football-blackjack",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Football-themed Blackjack game",
+  "packageManager": "pnpm@11.9.0"
+}
+

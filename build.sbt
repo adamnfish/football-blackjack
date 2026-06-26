@@ -1,0 +1,46 @@
+import Dependencies.*
+
+scalaVersion := "3.8.4"
+version := "0.1.0-SNAPSHOT"
+organization := "com.adamnfish"
+organizationName := "adamnfish"
+
+lazy val commonSettings = Seq(
+  libraryDependencies += munit % Test
+)
+
+lazy val root = (project in file("."))
+  .aggregate(common, dataService, api, devServer)
+  .settings(
+    name := "football-blackjack"
+  )
+
+lazy val common = (project in file("backend/common"))
+  .settings(commonSettings)
+  .settings(
+    name := "common",
+    libraryDependencies ++= Seq(
+      "com.softwaremill.sttp.client4" %% "core" % "4.0.25"
+    )
+  )
+
+lazy val dataService = (project in file("backend/data-service"))
+  .dependsOn(common)
+  .settings(commonSettings)
+  .settings(
+    name := "data-service"
+  )
+
+lazy val api = (project in file("backend/api"))
+  .dependsOn(common)
+  .settings(commonSettings)
+  .settings(
+    name := "api"
+  )
+
+lazy val devServer = (project in file("backend/dev-server"))
+  .dependsOn(common)
+  .settings(commonSettings)
+  .settings(
+    name := "dev-server"
+  )
