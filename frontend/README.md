@@ -1,6 +1,6 @@
 # Football Blackjack Frontend
 
-Minimal Lustre + Tailwind CSS 4.3 stub.
+Minimal Elm + elm-ui stub, bundled with Vite.
 
 ## Scripts
 

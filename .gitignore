@@ -9,8 +9,8 @@ node_modules/
 cdk.out/
 dist/
 
-# Gleam
-build/
+# Elm
+elm-stuff/
 
 # IDE
 .idea/

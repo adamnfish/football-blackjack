@@ -3,4 +3,6 @@ packages:
   - infrastructure
 
 allowBuilds:
+  elm: true
+  elm-format: true
   esbuild: true

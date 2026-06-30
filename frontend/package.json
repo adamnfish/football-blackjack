@@ -2,19 +2,19 @@
   "name": "@football-blackjack/frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "Gleam/Lustre frontend for Football Blackjack",
+  "description": "Elm/elm-ui frontend for Football Blackjack",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "gleam test"
+    "test": "elm-test"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.0",
-    "tailwindcss": "^4.3.0",
+    "elm": "^0.19.1-6",
+    "elm-format": "^0.8.8",
+    "elm-test": "^0.19.1-revision12",
     "vite": "^7.0.0",
-    "vite-gleam": "^1.7.1"
+    "vite-plugin-elm": "^3.0.1"
   }
 }
-

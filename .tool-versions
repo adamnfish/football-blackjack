@@ -4,6 +4,3 @@ java corretto-25
 # frontend
 node 24
 pnpm 11
-erlang 28
-rebar 3
-gleam 1
