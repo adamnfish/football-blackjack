@@ -1,6 +1,4 @@
-package com.adamnfish.fbj.models
-
-import com.adamnfish.fbj.models.Progress.NotStarted
+package com.adamnfish.fbj
 
 enum Request {
   case Ping

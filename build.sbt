@@ -21,7 +21,7 @@ lazy val common = (project in file("backend/common"))
     name := "common",
     libraryDependencies ++= Seq(
       "com.softwaremill.sttp.client4" %% "core" % "4.0.25"
-    )
+    ) ++ circe
   )
 
 lazy val dataService = (project in file("backend/data-service"))
