@@ -1,8 +1,15 @@
 package com.adamnfish.fbj.models
 
+import com.adamnfish.fbj.models.Progress.NotStarted
+
 enum Request {
   case Ping
-  case CreateGame(gameName: GameName)
+  case CreateGame(
+      gameName: GameName,
+      gameSettings: GameSettings,
+      competitionCode: CompetitionCode,
+      playerName: PlayerName
+  )
   case JoinGame(gameId: GameId, playerName: PlayerName, teams: List[TeamId])
   case EditTeams(teams: List[TeamId], auth: Auth)
   case LockGame(gameId: GameId, auth: Auth)
@@ -12,15 +19,13 @@ enum Request {
 enum Response {
   case Ping
   case GameCreated(
-      gameName: GameName,
-      gameId: GameId,
-      playerId: PlayerId,
+      game: Game,
+      player: Player,
       playerKey: PlayerKey
   )
   case GameJoined(
-      gameName: GameName,
-      gameId: GameId,
-      playerId: PlayerId,
+      game: Game,
+      player: Player,
       playerKey: PlayerKey
   )
   case TeamsEdited(teams: List[TeamId])
@@ -38,20 +43,21 @@ case class Game(
     gameId: GameId,
     gameName: GameName,
     gameSettings: GameSettings,
+    locked: Boolean,
     players: List[Player],
     gameAdmin: PlayerId,
     competition: Competition
 )
 
 case class GameSettings(
-    limit: Int,
+    goalLimit: Int,
     teamCount: Int
 )
 
 case class Player(
     id: PlayerId,
     name: PlayerName,
-    selection: Option[List[TeamId]]
+    selection: List[TeamId]
 )
 
 /* Competition countries */
@@ -80,6 +86,7 @@ case class Score(
 )
 
 enum Progress {
+  case NotStarted
   case Group(matchCount: Int)
   case Knockout(size: Int)
   case TopFour(rank: Int)
@@ -160,4 +167,3 @@ object CompetitionName {
     def name: String = competitionName
   }
 }
-
