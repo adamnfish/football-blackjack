@@ -1,5 +1,6 @@
 package com.adamnfish.fbj.footballdata
 
+import com.adamnfish.fbj.footballdata.*
 import io.circe.parser.decode
 
 import scala.io.Source
