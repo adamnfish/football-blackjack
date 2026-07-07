@@ -7,6 +7,16 @@ object Dependencies {
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion
   )
-  
+
+  lazy val sttp = Seq(
+    "com.softwaremill.sttp.client4" %% "core" % "4.0.25"
+  )
+
+  val awsJavaSdkVersion = "2.47.0"
+  lazy val lambdaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.4.0"
+  lazy val lambdaEvents = "com.amazonaws" % "aws-lambda-java-events" % "3.16.1"
+  lazy val awsCrtClient =
+    "software.amazon.awssdk" % "aws-crt-client" % awsJavaSdkVersion
+
   lazy val munit = "org.scalameta" %% "munit" % "1.3.3"
 }

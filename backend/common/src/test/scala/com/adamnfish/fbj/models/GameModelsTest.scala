@@ -4,6 +4,8 @@ import io.circe.parser.decode
 import io.circe.syntax.*
 import munit.FunSuite
 
+import java.time.Instant
+
 class GameModelsTest extends FunSuite {
   def team(id: String): Team =
     Team(TeamId(id), TeamTLA(id.take(3).toUpperCase), TeamName(id, id), s"https://example.com/$id.png")
@@ -16,8 +18,15 @@ class GameModelsTest extends FunSuite {
 
   def competition: Competition =
     Competition(
+      CompetitionId(1),
       CompetitionCode("WC"),
-      CompetitionName("World Cup"),
+      CompetitionName("World Cup")
+    )
+
+  def competitionStats: CompetitionStats =
+    CompetitionStats(
+      CompetitionId(1),
+      Instant.parse("2022-11-20T00:00:00Z"),
       Map(
         team("england") -> teamStats(3, 1, Progress.Group(2), Status.Playing),
         team("brazil") -> teamStats(5, 0, Progress.Knockout(8), Status.Playing),
@@ -75,13 +84,18 @@ class GameModelsTest extends FunSuite {
     assertEquals(decode[Player](value.asJson.noSpaces), Right(value))
   }
 
-  test("Competition round trips through JSON, including its Map[Team, TeamStats]") {
+  test("Competition round trips through JSON") {
     val value = competition
     assertEquals(decode[Competition](value.asJson.noSpaces), Right(value))
   }
 
-  test("Competition JSON keys the teams map using Team's own JSON encoding") {
-    val json = competition.asJson
+  test("CompetitionStats round trips through JSON, including its Map[Team, TeamStats]") {
+    val value = competitionStats
+    assertEquals(decode[CompetitionStats](value.asJson.noSpaces), Right(value))
+  }
+
+  test("CompetitionStats JSON keys the teams map using Team's own JSON encoding") {
+    val json = competitionStats.asJson
     val teamsObject = json.hcursor.downField("teams").focus.flatMap(_.asObject)
     assert(teamsObject.isDefined, "expected teams to be encoded as a JSON object")
     val keys = teamsObject.get.keys.toList

@@ -5,6 +5,8 @@ import io.circe.parser.decode
 import io.circe.syntax.*
 import io.circe.*
 
+import java.time.Instant
+
 case class Game(
     id: GameId,
     gameName: GameName,
@@ -34,7 +36,7 @@ case class Competition(
 
 case class CompetitionStats(
     id: CompetitionId,
-    timestamp: Long,
+    timestamp: Instant,
     teams: Map[Team, TeamStats]
 ) derives Codec
 

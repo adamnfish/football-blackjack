@@ -10,7 +10,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val root = (project in file("."))
-  .aggregate(common, dataService, api, devServer)
+  .aggregate(common, footballdata, dataService, api, devServer)
   .settings(
     name := "football-blackjack"
   )
@@ -20,22 +20,46 @@ lazy val common = (project in file("backend/common"))
   .settings(
     name := "common",
     libraryDependencies ++= Seq(
-      "com.softwaremill.sttp.client4" %% "core" % "4.0.25"
     ) ++ circe
   )
 
-lazy val dataService = (project in file("backend/data-service"))
+lazy val footballdata = (project in file("backend/footballdata"))
   .dependsOn(common)
   .settings(commonSettings)
   .settings(
-    name := "data-service"
+    name := "footballdata",
+    libraryDependencies ++= Seq(
+    ) ++ circe ++ sttp
+  )
+
+lazy val dataService = (project in file("backend/data-service"))
+  .dependsOn(common, footballdata)
+  .settings(commonSettings)
+  .settings(
+    name := "data-service",
+    libraryDependencies ++= Seq(
+      lambdaCore,
+      lambdaEvents
+    ),
+    excludeDependencies ++= Seq(
+      ExclusionRule("software.amazon.awssdk", "netty-nio-client"),
+      ExclusionRule("software.amazon.awssdk", "apache-client")
+    )
   )
 
 lazy val api = (project in file("backend/api"))
   .dependsOn(common)
   .settings(commonSettings)
   .settings(
-    name := "api"
+    name := "api",
+    libraryDependencies ++= Seq(
+      lambdaCore,
+      lambdaEvents
+    ),
+    excludeDependencies ++= Seq(
+      ExclusionRule("software.amazon.awssdk", "netty-nio-client"),
+      ExclusionRule("software.amazon.awssdk", "apache-client")
+    )
   )
 
 lazy val devServer = (project in file("backend/dev-server"))

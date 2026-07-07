@@ -4,6 +4,8 @@ import io.circe.parser.decode
 import io.circe.syntax.*
 import munit.FunSuite
 
+import java.time.Instant
+
 class MessagesTest extends FunSuite {
   def game: Game =
     Game(
@@ -14,17 +16,24 @@ class MessagesTest extends FunSuite {
       List(Player(PlayerId("alice-id"), PlayerName("alice"), List(TeamId("england")))),
       PlayerId("alice-id"),
       Competition(
+        CompetitionId(1),
         CompetitionCode("WC"),
-        CompetitionName("World Cup"),
-        Map(
-          Team(TeamId("england"), TeamTLA("ENG"), TeamName("Eng", "England"), "https://example.com/england.png")
-            -> TeamStats(Score(3, 1), Progress.Group(2), Status.Playing)
-        )
+        CompetitionName("World Cup")
       )
     )
 
   def player: Player =
     Player(PlayerId("alice-id"), PlayerName("alice"), List(TeamId("england")))
+
+  def competitionStats: CompetitionStats =
+    CompetitionStats(
+      CompetitionId(1),
+      Instant.parse("2022-11-20T00:00:00Z"),
+      Map(
+        Team(TeamId("england"), TeamTLA("ENG"), TeamName("Eng", "England"), "https://example.com/england.png")
+          -> TeamStats(Score(3, 1), Progress.Group(2), Status.Playing)
+      )
+    )
 
   test("Auth round trip") {
     val value = Auth(PlayerKey("secret-key"))
@@ -47,12 +56,12 @@ class MessagesTest extends FunSuite {
 
   test("Response round trips, for every case") {
     val values: List[Response] = List(
-      Response.Ping,
-      Response.GameCreated(game, player, PlayerKey("secret-key")),
-      Response.GameJoined(game, player, PlayerKey("secret-key")),
-      Response.TeamsEdited(List(TeamId("england"))),
+      Response.Ping(),
+      Response.GameCreated(game, player, PlayerKey("secret-key"), competitionStats),
+      Response.GameJoined(game, player, PlayerKey("secret-key"), competitionStats),
+      Response.TeamsEdited(List(TeamId("england")), PlayerId("alice-id")),
       Response.GameLocked(),
-      Response.GameInfoFetched(game)
+      Response.GameInfoFetched(game, competitionStats)
     )
     values.foreach { value =>
       assertEquals(decode[Response](value.asJson.noSpaces), Right(value))

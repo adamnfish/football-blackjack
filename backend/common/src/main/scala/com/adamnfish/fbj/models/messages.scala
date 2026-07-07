@@ -18,7 +18,7 @@ enum Request derives Codec {
 }
 
 enum Response derives Codec {
-  case Ping
+  case Ping()
   case GameCreated(
       game: Game,
       player: Player,
@@ -30,9 +30,6 @@ enum Response derives Codec {
       player: Player,
       playerKey: PlayerKey,
       competitionStats: CompetitionStats
-  )
-  case AnotherPlayerJoined(
-      players: List[Player]
   )
   case TeamsEdited(teams: List[TeamId], playerId: PlayerId)
   case GameLocked()
