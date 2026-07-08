@@ -1,0 +1,91 @@
+# 07 — Frontend SPA
+
+**Status: designed**
+
+## Goal
+
+Build the Elm SPA under `frontend/`: create a game, join via link, pick teams,
+watch the sweepstake unfold — leaderboard, analysis views, and the admin's
+game-management controls.
+
+## Current state
+
+- Hello-world shell: `Browser.element`, empty model, static `View.view`
+- Elm 0.19 + elm-ui 1.1.8, bundled by Vite (`vite-plugin-elm`), pnpm workspace
+- No routing, no HTTP, no ports, no test setup
+
+## Depends on
+
+- [06-dev-server](06-dev-server.md) — local API (Vite proxy to `/api/*`),
+  simulated clock for exploring tournament states
+- The wire contract from [03-api](03-api.md): `POST /api/{operation}`, bare
+  payloads, circe-encoded responses/errors
+
+## Decided
+
+- **Styling: elm-ui** (already a dependency, known technology); revisit only if it
+  fights the analysis views. Charts: terezka/elm-charts.
+- **Links**: join link `/game/{gameId}`; personal link `/game/{gameId}?key={playerKey}`.
+  On load the app stores the key in localStorage (keyed by game) and strips it
+  from the address bar (`replaceUrl`). Lost link / new device = admin re-shares
+  via `FetchPlayerKeys` ([03-api](03-api.md)).
+- **V1 game page views** (leaderboard with totals, bust status and tie-break
+  order is the core):
+  - progress-to-target bars per player (bust-red past the target)
+  - expandable per-player team breakdown (each pick's goals, stage, alive/out)
+  - competition-wide teams overview (goals, stage reached, picked-by, still-in)
+  - goal-race-over-time chart is explicitly **out of v1** — it needs the
+    historical snapshots read path we deferred in [02-persistence](02-persistence.md)
+- **Refresh: 60s poll** of `FetchGameInfo` while a game page is open, plus
+  immediate refresh on tab focus.
+- **Creator team selection: same selection screen as joiners**, entered right
+  after create; `CreateGame` stays slim (name only) and there's a single
+  selection UI. Views must tolerate a player with an empty selection (the
+  creator, briefly — and any admin who hasn't picked yet).
+- **Codecs: hand-written** Elm encoders/decoders mirroring the circe formats,
+  kept honest by golden-sample tests on both sides (same JSON files asserted
+  against in munit and elm-test).
+
+## Approach
+
+### Structure
+
+- `Browser.application` with a `Route` module: `/` (home/create),
+  `/game/{gameId}` (join/selection/game view depending on state). Page modules
+  (`Page.Home`, `Page.Game`), an `Api` module (one function per operation,
+  encoders/decoders, shared error decoding), and a `Ports` module (localStorage
+  read/write of `{gameId → playerKey}`).
+- The game page is a state machine: not-joined (+unlocked) → selection screen;
+  joined → game view; admin (key matches `gameAdmin`) additionally sees
+  lock/unlock and the re-share-links panel.
+
+### Selection screen
+
+- Team grid with crests (placeholder when `crestUrl` is absent), pick-count
+  against `GameSettings.teamCount`, other players' selections visible (public by
+  design) so takers can avoid taken combinations; `TeamSelectionTaken` from the
+  server handled as a friendly inline error as the backstop for races.
+
+### Game view
+
+- Leaderboard ordered by the game rules: distance-below-target, then the
+  tie-breaks (furthest progress via the `Ordering[Progress]` definition from
+  `common`, then goal difference) — implemented in Elm, tested against the same
+  golden expectations as the Scala side.
+- Derived values (totals, bust) computed from `Game` + `CompetitionStats` in one
+  tested `Game`-logic module.
+
+### Tests
+
+- elm-test: codec golden tests (shared JSON sample files with the Scala side),
+  derived-logic tests (totals, bust, leaderboard order incl. tie-break
+  interleaving), route parsing. Browser-level coverage comes from
+  [10-e2e-tests](10-e2e-tests.md).
+
+## Notes
+
+- Build order within this piece: skeleton/routing + Api module → create/join
+  flows → selection screen → game view → analysis views → admin panel.
+- The dev server's simulated clock is the workhorse here: every state the views
+  must handle (pre-tournament, mid-group, partial brackets, finished) is
+  reproducible on demand.
