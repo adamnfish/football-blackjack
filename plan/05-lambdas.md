@@ -1,6 +1,6 @@
 # 05 — Lambda handlers (api, data-service)
 
-**Status: designed**
+**Status: designed · Phase 1 (api stub) / Phase 5 (real wiring + data-service)**
 
 ## Goal
 
@@ -19,12 +19,24 @@ on disk:
   and netty/apache client exclusions (pointing at `awsCrtClient` for AWS calls)
 - No source directories yet
 
+## Phase 1 slice — the walking skeleton's API
+
+The `api` module is created in phase 1 with a stub handler: it accepts any
+`POST /api/{operation}` event and returns 200 `"ok"`, giving the skeleton its
+real wire shape (routing, packaging, deployment) with no logic. sbt-assembly and
+the module's assembly settings land now, and CDK consumes the jar from day one.
+The `data-service` module isn't created until phase 5.
+
+Everything below describes the full (phase 5) version; the stub grows into it
+without the surrounding infrastructure changing.
+
 ## Depends on
 
-- [03-api](03-api.md) / [04-competition-job](04-competition-job.md) — the logic
-  being wrapped; the shared HTTP mapping in `common` (operation extraction,
-  `Errors` → status/body) that the dev server also uses
-- [02-persistence](02-persistence.md) — the `dynamodb` adapter module
+- Phase 1 stub: nothing but the build setup (sbt-assembly)
+- Full version: [03-api](03-api.md) / [04-competition-job](04-competition-job.md) —
+  the logic being wrapped; the shared HTTP mapping in `common` (operation
+  extraction, `Errors` → status/body) that the dev server also uses
+- Full version: [02-persistence](02-persistence.md) — the `dynamodb` adapter module
 - Feeds [08-infrastructure](08-infrastructure.md)
 
 ## Decided

@@ -1,6 +1,6 @@
 # 02 — Persistence implementations
 
-**Status: designed**
+**Status: designed · Phase 2 (in-memory) / Phase 4 (DynamoDB)**
 
 ## Goal
 
@@ -23,8 +23,10 @@ The trait is whole-document load/save for two record types: `Game` (keyed by
 
 ## Depends on
 
-Nothing for the in-memory implementation. The production implementation feeds into
-[05-lambdas](05-lambdas.md) and [08-infrastructure](08-infrastructure.md).
+Nothing for the in-memory implementation, which is needed in **phase 2** — it
+backs the API integration tests and the dev server. The DynamoDB implementation
+is **phase 4**, and feeds into [05-lambdas](05-lambdas.md) and
+[08-infrastructure](08-infrastructure.md).
 
 ## Decided
 
@@ -95,9 +97,10 @@ trait Persistence {
 ### In-memory implementation
 
 - Lives in `common` main sources: a synchronized map that enforces exactly the
-  same version-check semantics. Used by `common` unit tests (which must not need
-  Docker); the dev server itself runs the real DynamoDB adapter against DynamoDB
-  Local ([06-dev-server](06-dev-server.md)).
+  same version-check semantics. Used by `common` tests (which must not need
+  Docker) and by the dev server through phases 2–3; the dev server swaps to the
+  real DynamoDB adapter against DynamoDB Local once it exists in phase 4
+  ([06-dev-server](06-dev-server.md)).
 
 ### Tests
 
@@ -105,7 +108,9 @@ trait Persistence {
   latest-stats-wins, version conflict on stale save, create-vs-exists. Runs
   against the in-memory implementation in `common`; the same suite runs against
   DynamoDB Local (Docker, as set up for the dev server) as an integration test
-  for the real adapter.
+  for the real adapter. This is the house pattern (test strategy in
+  [00-overview](00-overview.md)): effect services stay thin, and one behavioural
+  suite runs against every implementation of the trait.
 - Unit tests for the DynamoDB item ↔ model mapping.
 
 ## Notes

@@ -1,6 +1,6 @@
 # 10 — End-to-end tests
 
-**Status: designed**
+**Status: designed · Phase 1 (minimal suite), then grows in lockstep with every increment**
 
 ## Goal
 
@@ -28,6 +28,11 @@ changes.
 - **Tooling: Playwright + TypeScript**, as an `e2e` package in the pnpm
   workspace — first-class screenshots/traces and multiple browser contexts for
   multi-player flows.
+- **The suite encodes the requirements**: every API endpoint / frontend flow
+  lands together with the Playwright scenario that specifies it. This is also
+  where the frontend's wiring (`update`, messages, HTTP, ports, subscriptions)
+  gets its coverage, in situ against the real API — see the test strategy in
+  [00-overview](00-overview.md).
 - **Targets** via config/env (base URL + capability flags):
   - **local**: DynamoDB Local (Docker) + dev server (sbt) + Vite with the `/api`
     proxy; full suite, including simulated-clock scenarios — pre-tournament,
@@ -39,9 +44,9 @@ changes.
     long-lived game, and create one clearly-named smoke game
     (`smoke-{run id}`) to prove the write path; never joins or mutates real
     games
-- **Screenshots**: per-step/per-state screenshots uploaded as CI artifacts for
-  eyeballing; committed golden images / visual regression diffing deliberately
-  deferred until the design stabilises.
+- **Screenshots**: per-step/per-state screenshots of the user flows uploaded as
+  CI artifacts — the visual regression record for design changes; automated
+  golden-image diffing deliberately deferred until the design stabilises.
 
 ## Approach
 
@@ -58,6 +63,7 @@ changes.
 
 ## Notes
 
-- Build a minimal version early (load page → create game → screenshot) as soon
-  as the dev server and the first frontend flow exist — it pays for itself
-  through the whole frontend build.
+- The minimal suite is a **phase 1 deliverable**, not an afterthought: page
+  loads (screenshot) and `POST /api/ping` returns 200, running against the stub
+  dev server locally and against deployed environments via the e2e-test
+  workflow. It pays for itself through the whole build.

@@ -1,6 +1,6 @@
 # 01 — football-data fetch and conversion
 
-**Status: designed**
+**Status: designed · Phase 3**
 
 ## Goal
 
@@ -22,7 +22,12 @@ Complete the `footballdata` module so it fully implements `CompetitionData`:
 
 ## Depends on
 
-Nothing — this is the natural first piece. Fixtures and both sides' models exist.
+Nothing technically — fixtures and both sides' models exist. In the
+walking-skeleton order ([00-overview](00-overview.md)) this is **phase 3**: the
+app is already deployed and playable locally on canned `CompetitionStats` stub
+data; this piece replaces the stubs with real conversion, and unlocks the dev
+server's simulated clock ([06-dev-server](06-dev-server.md)), which rewrites
+`MatchesResponse` fixtures and needs `convertDataToStats` to turn them into stats.
 
 ## Decided
 
@@ -112,6 +117,11 @@ Nothing — this is the natural first piece. Fixtures and both sides' models exi
   - `matches_match-in-play.json`: live goals counted for the in-play Last16 match
   - `TopFour` ranks need a completed-tournament fixture — derive one by completing
     the semis/third-place/final in a copy of `matches.json`
+- Property tests (munit-scalacheck) where properties express the rules better
+  than examples — candidates: every determined team in the input appears in the
+  output; goal totals are non-negative and shootout goals are never counted,
+  whatever the score shape; `Ordering[Progress]` is a total order consistent
+  with the documented progression.
 
 ## Notes
 

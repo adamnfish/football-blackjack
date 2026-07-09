@@ -1,6 +1,6 @@
 # 06 — Dev server
 
-**Status: designed**
+**Status: designed · Phase 1 (stub) / Phase 2 (full server, stub data) / Phase 3 (simulated clock) / Phase 4 (DynamoDB Local)**
 
 ## Goal
 
@@ -17,6 +17,22 @@ disk): a local webserver that
 
 - Nothing on disk; sbt module declared with no extra dependencies
 
+## Phased delivery
+
+- **Phase 1 (skeleton)**: a minimal Cask app answering 200 `"ok"` to
+  `POST /api/*` — just enough for the Vite proxy and the local e2e suite to have
+  a target from day one. This stub is the seed the real server grows from.
+- **Phase 2**: real `API.dispatch` behind the routes; in-memory persistence; a
+  stub `CompetitionData` serving canned `CompetitionStats` fixtures (a few
+  tournament states — pre-tournament, mid-group, knockouts, finished — standing
+  in for the simulated clock); the `/dev` panel with job trigger and demo-game
+  seeding.
+- **Phase 3**: the fixture-rewriting `FixtureCompetitionData` + simulated clock
+  described below — it needs `convertDataToStats`
+  ([01-football-data](01-football-data.md)), which is why it waits.
+- **Phase 4**: swap in-memory persistence for the DynamoDB adapter against
+  DynamoDB Local.
+
 ## Depends on
 
 - [03-api](03-api.md) — the `API` it wraps and the operation/error wire contract
@@ -28,15 +44,19 @@ disk): a local webserver that
 
 - **Server: Cask** — pleasant minimal routing for a handful of routes, one small
   dependency to add to the `devServer` module.
-- **Competition data: JSON fixtures with a simulated clock.** A fixture-backed
+- **Competition data: JSON fixtures with a simulated clock** (phase 3; canned
+  `CompetitionStats` fixtures stand in during phase 2). A fixture-backed
   `CompetitionData` presents a *complete-tournament* fixture **as of a
   configurable "current time"**, so the UI can be explored at any tournament
   stage. The current time is inspectable and settable via a dev settings endpoint.
-- **Persistence: the real DynamoDB adapter against DynamoDB Local in Docker** —
-  exercises the production codecs, conditional writes, and table shapes during
-  everyday development (the unmaintained sbt-dynamodb plugin is avoided;
-  `amazon/dynamodb-local` runs via docker compose). The in-memory implementation
-  remains for `common` unit tests, which must not need Docker.
+- **Persistence: in-memory first (phases 2–3), then the real DynamoDB adapter
+  against DynamoDB Local in Docker (phase 4)** — amended from the original
+  "DynamoDB Local from the start" so Docker doesn't enter the picture before the
+  adapter exists. From phase 4 the dev server exercises the production codecs,
+  conditional writes, and table shapes during everyday development (the
+  unmaintained sbt-dynamodb plugin is avoided; `amazon/dynamodb-local` runs via
+  docker compose). The in-memory implementation remains for `common` tests,
+  which must not need Docker.
 - **Frontend connection: Vite proxy** — `vite.config.mjs` proxies `/api/*` to the
   dev server; the browser sees one origin, no CORS anywhere, matching the intended
   same-origin production setup.

@@ -1,6 +1,6 @@
 # 07 — Frontend SPA
 
-**Status: designed**
+**Status: designed · Phase 1 (hello world deployed) / Phase 2 (flows, incremental)**
 
 ## Goal
 
@@ -77,10 +77,14 @@ game-management controls.
 
 ### Tests
 
-- elm-test: codec golden tests (shared JSON sample files with the Scala side),
-  derived-logic tests (totals, bust, leaderboard order incl. tie-break
-  interleaving), route parsing. Browser-level coverage comes from
-  [10-e2e-tests](10-e2e-tests.md).
+- elm-test covers pure logic only: codec golden tests (shared JSON sample files
+  with the Scala side), derived-logic tests (totals, bust, leaderboard order
+  incl. tie-break interleaving), route parsing.
+- The wiring — `update`, message handling, HTTP calls, ports, subscriptions — is
+  deliberately covered in situ against the real API by the Playwright suite
+  ([10-e2e-tests](10-e2e-tests.md)), not unit-mocked. Corollary: keep logic out
+  of views and `update`, in plain testable functions (test strategy in
+  [00-overview](00-overview.md)).
 
 ## Notes
 

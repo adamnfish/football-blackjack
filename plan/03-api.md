@@ -1,6 +1,6 @@
 # 03 — API game logic
 
-**Status: designed**
+**Status: designed · Phase 2** (implemented incrementally, endpoint by endpoint)
 
 ## Goal
 
@@ -48,6 +48,13 @@ game and is shared by the API Lambda and the dev server.
   stored `CompetitionStats` show the tournament has started (any team's progress
   beyond `NotStarted`), with no clock or fixture knowledge. An explicit admin
   unlock overrides the auto-lock.
+- **Incremental delivery (walking skeleton)**: endpoints land one at a time in
+  phase 2, each together with the frontend flow that consumes it and the
+  Playwright scenario that specifies it ([10-e2e-tests](10-e2e-tests.md)).
+  Suggested order: ping → createGame → fetchGameInfo → editTeams (creator
+  selection) → joinGame → lockGame/unlockGame → fetchPlayerKeys. Stats come from
+  the store as designed — in phase 2 the store is seeded with canned
+  `CompetitionStats` fixtures via the dev server.
 
 ## Approach
 
@@ -100,10 +107,17 @@ game and is shared by the API Lambda and the dev server.
 
 ### Tests
 
-- munit against the in-memory persistence: happy path + each error case per
-  endpoint; lock-state matrix (Auto pre/post kick-off, Locked, Unlocked);
-  set-equality on selection uniqueness; a conflict test with a stubbed
-  `Persistence` that fails the first save.
+- Integration tests in the house style (test strategy in
+  [00-overview](00-overview.md)): construct `API` with the in-memory
+  `Persistence` (seeded with stats) and drive `dispatch` with operation + JSON
+  body, asserting on the response/error — testing the assembled application's
+  requests and responses rather than methods in isolation. Happy path + each
+  error case per endpoint; lock-state matrix (Auto pre/post kick-off, Locked,
+  Unlocked); a conflict test with a stubbed `Persistence` that fails the first
+  save.
+- Property tests where they sharpen the point: selection uniqueness is a set
+  property (any permutation of a taken combination is rejected); validation
+  rules hold for generated inputs, not just hand-picked examples.
 
 ## Notes
 

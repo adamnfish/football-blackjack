@@ -1,6 +1,6 @@
 # 04 — Competition job
 
-**Status: designed**
+**Status: designed · Phase 5** (can interleave with phases 3–4 once its collaborators exist)
 
 ## Goal
 
