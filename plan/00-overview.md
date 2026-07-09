@@ -62,7 +62,8 @@ throughout — it encodes the requirements.
 Domain choice + Route53 hosted zone (the one item with lead time); CDK bootstrap
 of the account; the once-per-account CI stack (GitHub OIDC provider + per-stage
 deploy roles, [08-infrastructure](08-infrastructure.md)); `test`/`prod` GHA
-environments in repo settings ([09-cicd](09-cicd.md)).
+environments in repo settings ([09-cicd](09-cicd.md)). Step-by-step checklist:
+[phase-0-runbook](phase-0-runbook.md).
 
 **Done when** a GitHub Actions workflow can assume a deploy role via OIDC.
 
@@ -79,8 +80,8 @@ suite: page loads + screenshot, `/api/ping` is 200 ([10-e2e-tests](10-e2e-tests.
 
 **Done when** the test environment serves the hello-world frontend at its domain
 and `POST /api/ping` returns 200 through CloudFront; PRs run build-and-test
-including the local e2e suite with screenshot artifacts; a production deploy
-works the same way.
+including the local e2e suite with screenshot artifacts; a prod deploy works the
+same way.
 
 ### Phase 2 — working backwards from the UI
 
@@ -172,11 +173,31 @@ fail the build ([08-infrastructure](08-infrastructure.md)).
 - **Access control**: capability-by-link — player key in a personal URL, spreadsheet-with-edit-link level trust; lost links recovered via admin re-sharing (decided — see [03-api](03-api.md) / [07-frontend](07-frontend.md))
 - **Wire format**: `POST /api/{operation}` (kebab-case) with bare per-request JSON payloads (decided — see [03-api](03-api.md))
 - Tests per the test strategy above: munit (+ munit-scalacheck for property tests); JSON round-trip tests for models, fixture-driven tests for external formats, browser e2e with screenshots ([10-e2e-tests](10-e2e-tests.md))
-- scalafmt configured (`.scalafmt.conf`)
+- Formatting enforced in CI: scalafmt (`.scalafmt.conf`) and elm-format ([09-cicd](09-cicd.md))
 - Frontend: Elm 0.19 + **elm-ui** (decided, known technology), Vite, pnpm workspace
 - **Stage naming: `test` and `prod`**, used consistently for stack names, the `stage` tag, and GHA environment names
 - **Tagging**: every AWS resource carries `app: football-blackjack` and `stage: test|prod`, applied via CDK `Tags.of` at the app/stack level (decided — see [08-infrastructure](08-infrastructure.md))
 - Deploys via GitHub Actions with OIDC to **test** and **prod** GHA environments ([09-cicd](09-cicd.md)); deploy roles only assume the unmodified account-wide CDK bootstrap roles, with access control resting on the OIDC trust conditions ([08-infrastructure](08-infrastructure.md)); [pokerdot](https://github.com/adamnfish/pokerdot) is the reference project for CI/CD and e2e shape
+
+## Open questions
+
+- **Competition lifecycle — needs its own design session.** The auto-lock means
+  the app behaves differently before, during, and after a tournament: joins are
+  auto-locked once stats show a start; after the final, games are permanently
+  locked and stats frozen; between tournaments there is no valid competition to
+  create games against (`createGame` requires stats in the store). What the app
+  should do in each window — and how the next competition is configured and
+  switched on (schedule rule, config, initial stats load) — needs thinking
+  through as a whole. Touches [03-api](03-api.md),
+  [04-competition-job](04-competition-job.md),
+  [08-infrastructure](08-infrastructure.md), and [10-e2e-tests](10-e2e-tests.md)
+  (the full suite against deployed test only passes mid-tournament or via admin
+  unlock).
+- **Operational docs (`docs/`, later).** A developer/operator runbook for
+  questions that outlive the build plan: populating the committed
+  `cdk.context.json` lookup cache with a credentialed synth, and the
+  start/end-of-tournament procedures once the lifecycle question above is
+  settled.
 
 ## Status
 

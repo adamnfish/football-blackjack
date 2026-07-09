@@ -39,8 +39,11 @@ changes.
     mid-group, knockouts, finished states are all reproducible
     ([06-dev-server](06-dev-server.md))
   - **test**: full suite; live data, so stats-dependent assertions are
-    structural rather than value-exact
-  - **production: read-only + create smoke** — load the app, fetch a known
+    structural rather than value-exact. Once live stats show the tournament has
+    started, the auto-lock rejects joins/edits ([03-api](03-api.md)) — join-flow
+    scenarios must go through admin unlock, and the broader between-tournaments
+    question is tracked in [00-overview](00-overview.md)'s open questions
+  - **prod: read-only + create smoke** — load the app, fetch a known
     long-lived game, and create one clearly-named smoke game
     (`smoke-{run id}`) to prove the write path; never joins or mutates real
     games
@@ -57,7 +60,7 @@ changes.
 - Local orchestration: a compose/script bringing up DynamoDB Local, the dev
   server, and Vite; Playwright's `webServer` config can own frontend startup.
 - Capability flags gate what runs where (clock control and seeding exist only
-  locally; write scope restricted on production).
+  locally; write scope restricted on prod).
 - Smoke-game naming makes any production residue identifiable; cleanup is
   unnecessary (games are unlisted and free) but possible later.
 

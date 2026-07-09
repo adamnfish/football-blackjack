@@ -105,8 +105,9 @@ disk): a local webserver that
 
 ## Notes
 
-- The dev-server module gains dependencies: Cask, plus `dynamodb` (the adapter
-  module) and `footballdata` (fixture models/conversion).
+- The dev-server module gains dependencies as the phases land: Cask (phase 1),
+  `footballdata` for fixture models/conversion (phase 3), and `dynamodb` (the
+  adapter module, phase 4).
 - The simulated clock makes the e2e suite ([10-e2e-tests](10-e2e-tests.md))
   dramatically more useful locally: screenshots of pre-tournament, mid-group,
   knockout, and finished states are all reproducible on demand.

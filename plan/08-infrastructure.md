@@ -61,7 +61,10 @@ needs, twice (test and production stages).
     → S3 (SPA fallback for client routes → `index.html`), `/api/*` behaviour →
     HTTP API origin (caching disabled); stage domain + cert
   - `BucketDeployment` publishing `frontend/dist` (frontend build runs before
-    `cdk deploy`)
+    `cdk deploy`), with its `distribution`/`distributionPaths` props set so the
+    deployment issues the CloudFront cache invalidation itself — CDK-native, no
+    post-deploy workflow step, extra role, or stack output needed. Without it a
+    cached `index.html` hides new releases until TTL expiry
   - log retention (~1 month)
 
   **Added as the data layer lands (phases 4–5):**
@@ -73,7 +76,9 @@ needs, twice (test and production stages).
   - env vars into the Lambdas: table names, competition config, football-data
     API key resolved from SSM at deploy time (phase 5)
   - CloudWatch alarm on sustained data-service failures → SNS → email
-    ([04-competition-job](04-competition-job.md)) (phase 5)
+    ([04-competition-job](04-competition-job.md)) (phase 5). Deliberately no
+    alarm on the API Lambda: users notice a broken API, nobody notices a
+    silently stale stats job
 - **Once-per-account CI stack** (phase 0; deployed manually, rarely changes):
   GitHub OIDC identity provider + per-stage deploy roles trusted for this
   repo/environment ([09-cicd](09-cicd.md)).
@@ -118,13 +123,11 @@ power in the bootstrap roles:
 
 ### Prerequisites (manual, one-off — phase 0)
 
-- Now, blocking the skeleton: domain choice; Route53 hosted zone; CDK bootstrap
-  of the account (shared account — may already be bootstrapped; the bootstrap
-  roles stay unmodified); CI stack deploy; `test`/`prod` GHA environments in
-  repo settings ([09-cicd](09-cicd.md)). The custom domain stays in the
-  skeleton deliberately — it's the one prerequisite with real lead time.
-- Deferred to phase 5: the SSM parameter holding the football-data API key; SNS
-  topic email subscription confirmation.
+The [phase-0-runbook](phase-0-runbook.md) owns the step-by-step detail
+(domain/zone, bootstrap checks, CI stack, GHA environments, verification, and
+what's deferred to phase 5). One design note belongs here: the custom domain
+stays in the skeleton deliberately — it's the one prerequisite with real lead
+time.
 
 ## Notes
 

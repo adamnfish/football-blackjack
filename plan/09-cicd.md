@@ -28,7 +28,8 @@ uses HTTP and CDK).
 
 Deploys are **explicitly triggered** (`workflow_dispatch`), not automatic on merge:
 
-1. **build-and-test** (on PRs and main pushes): sbt tests, elm-test, frontend
+1. **build-and-test** (on PRs and main pushes): formatting checks
+   (`scalafmtCheckAll`, `elm-format --validate`), sbt tests, elm-test, frontend
    build, CDK snapshot tests (which synth the app for both stages —
    [08-infrastructure](08-infrastructure.md)), plus the **local e2e suite** —
    Playwright against the dev server with screenshots uploaded as workflow
@@ -42,7 +43,7 @@ Deploys are **explicitly triggered** (`workflow_dispatch`), not automatic on mer
    environments — each deploy builds fresh from the selected ref.
 3. **e2e-test** (`workflow_dispatch`, environment input): runs the e2e suite
    against the selected *deployed* environment (full suite on test; restricted
-   suite on production — see [10-e2e-tests](10-e2e-tests.md)). Until phase 5
+   suite on prod — see [10-e2e-tests](10-e2e-tests.md)). Until phase 5
    wires the deployed API to real data, deployed environments only support the
    smoke subset (page loads, `/api/ping` is 200).
 
