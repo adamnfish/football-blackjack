@@ -169,7 +169,7 @@ fail the build ([08-infrastructure](08-infrastructure.md)).
 - **Error handling: `scala.util.Try` throughout**, with a custom exception type carrying the `Errors` enum for expected domain failures (decided; Cats Effect / tagless final is the fallback if concurrency ever demands it — see [03-api](03-api.md))
 - **Store: DynamoDB**, two plain tables (games; competition-stats), items as circe JSON blobs, optimistic versioning via a `Versioned` envelope in the `Persistence` trait (decided — see [02-persistence](02-persistence.md))
 - **Stats history**: competition stats are written append-only, partitioned by load time; only the latest snapshot is read for now (decided — see [02-persistence](02-persistence.md))
-- **Config**: minimal; football-data API key in SSM Parameter Store, surfaced as env vars ([05-lambdas](05-lambdas.md)); local equivalent in [06-dev-server](06-dev-server.md)
+- **Config**: minimal, discovered from SSM Parameter Store at deploy time — per-stage domain/zone/cert parameters ([08-infrastructure](08-infrastructure.md)) and the football-data API key ([05-lambdas](05-lambdas.md)); domain names are deliberately never written into the repo; GHA environments hold only the deploy role ARN and region; local equivalent in [06-dev-server](06-dev-server.md)
 - **Access control**: capability-by-link — player key in a personal URL, spreadsheet-with-edit-link level trust; lost links recovered via admin re-sharing (decided — see [03-api](03-api.md) / [07-frontend](07-frontend.md))
 - **Wire format**: `POST /api/{operation}` (kebab-case) with bare per-request JSON payloads (decided — see [03-api](03-api.md))
 - Tests per the test strategy above: munit (+ munit-scalacheck for property tests); JSON round-trip tests for models, fixture-driven tests for external formats, browser e2e with screenshots ([10-e2e-tests](10-e2e-tests.md))
@@ -194,10 +194,9 @@ fail the build ([08-infrastructure](08-infrastructure.md)).
   (the full suite against deployed test only passes mid-tournament or via admin
   unlock).
 - **Operational docs (`docs/`, later).** A developer/operator runbook for
-  questions that outlive the build plan: populating the committed
-  `cdk.context.json` lookup cache with a credentialed synth, and the
-  start/end-of-tournament procedures once the lifecycle question above is
-  settled.
+  questions that outlive the build plan: the phase-0 as-built record (the
+  [runbook](phase-0-runbook.md)'s closing step) and the start/end-of-tournament
+  procedures once the lifecycle question above is settled.
 
 ## Status
 

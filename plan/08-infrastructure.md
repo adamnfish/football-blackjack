@@ -25,10 +25,21 @@ needs, twice (test and production stages).
   assets, `BucketDeployment`, deploy-time SSM resolution, per-stage
   parameterisation); pokerdot remains an architecture reference, not a template
   source.
-- **Custom domain from day one** — join links are shared with friends. Route53
-  zone + ACM cert (us-east-1, for CloudFront), one subdomain per stage (e.g.
-  `test.…` / apex or `www`). Choosing/owning the domain is the one manual
-  prerequisite.
+- **Custom domain from day one** — join links are shared with friends. One
+  subdomain per stage under a parent domain whose Route53 zone already exists
+  in this account; the stack creates each stage's alias records. ACM certs
+  (us-east-1, for CloudFront) are provisioned **manually** per stage in phase 0
+  and imported by ARN — no cross-region cert stack, no us-east-1 bootstrap.
+- **Per-stage domain config is discovered from SSM, never stored in the repo
+  or GitHub** — `/football-blackjack/{stage}/domain-name` / `hosted-zone-id` /
+  `certificate-arn`, created manually in phase 0 and resolved at **deploy
+  time** (`valueForStringParameter` → CloudFormation SSM-typed parameters,
+  the same idiom as the football-data API key in
+  [05-lambdas](05-lambdas.md)). Domain names therefore never appear in the
+  repo, the snapshots, or GHA settings; the GHA environments hold only the
+  deploy role ARN and region. Accepted trade-off: `cdk diff` doesn't surface
+  SSM value changes — a repointed parameter takes effect silently on the next
+  deploy.
 - **Single AWS account, two stages** — `FootballBlackjack-test` / `-prod` stacks
   side by side, separated by naming and per-stage deploy roles.
 - **Tagging: every resource carries `app: football-blackjack` and
@@ -59,7 +70,12 @@ needs, twice (test and production stages).
     proxy route
   - webroot S3 bucket (private, OAC) + CloudFront distribution: default behaviour
     → S3 (SPA fallback for client routes → `index.html`), `/api/*` behaviour →
-    HTTP API origin (caching disabled); stage domain + cert
+    HTTP API origin (caching disabled); stage domain + imported cert, both
+    resolved from SSM at deploy time
+  - DNS: A/AAAA alias records for the stage domain as one L1
+    `CfnRecordSetGroup` — the L2 `ARecord` does synth-time string logic on
+    record names, which silently misbehaves on deploy-time tokens; alias
+    target zone is the fixed `CloudFrontTarget.CLOUDFRONT_ZONE_ID`
   - `BucketDeployment` publishing `frontend/dist` (frontend build runs before
     `cdk deploy`), with its `distribution`/`distributionPaths` props set so the
     deployment issues the CloudFront cache invalidation itself — CDK-native, no
@@ -79,9 +95,18 @@ needs, twice (test and production stages).
     ([04-competition-job](04-competition-job.md)) (phase 5). Deliberately no
     alarm on the API Lambda: users notice a broken API, nobody notices a
     silently stale stats job
-- **Once-per-account CI stack** (phase 0; deployed manually, rarely changes):
-  GitHub OIDC identity provider + per-stage deploy roles trusted for this
-  repo/environment ([09-cicd](09-cicd.md)).
+- **Once-per-account CI stack** (phase 0; deployed manually with admin
+  credentials, never from CI/CD — the deploy roles shouldn't manage the stack
+  that defines them): just the two per-stage deploy roles trusted for this
+  repo/environment ([09-cicd](09-cicd.md)). The account's existing GitHub
+  OIDC identity provider (shared infrastructure owned by another project; an
+  account holds one per URL) is **referenced, not created** — its ARN is
+  deterministic
+  (`arn:aws:iam::{account}:oidc-provider/token.actions.githubusercontent.com`),
+  built from the stack's account id. Two plain IAM roles and nothing else: as
+  static as hand-written CloudFormation, no custom-resource Lambdas, and CDK
+  library bumps never force a redeploy. If that provider ever disappears,
+  the roles stop authenticating and the fix is to add it to this stack.
 
 ### GHA deploy role scoping (phase 0)
 
@@ -110,10 +135,11 @@ power in the bootstrap roles:
   snapshots. Both real stages are snapshot (not a synthetic third stage) so
   per-stage differences — prod's `RemovalPolicy.RETAIN`, the schedule's enabled
   flag — are covered in diffs too.
-- Determinism: stage config (domain names, competition list, …) comes in via
-  props/context rather than environment lookups where possible; anything that
-  must be looked up (hosted zone) relies on the committed `cdk.context.json`
-  cache. A snapshot serializer masks asset hashes (Lambda jars,
+- Determinism: stage config (competition list, …) comes in via props/context;
+  domain/zone/cert values are deploy-time SSM parameters, so synth needs no
+  credentials or lookups (no `cdk.context.json` cache) and the templates carry
+  only the SSM parameter *names* — real domains never reach the snapshots. A
+  snapshot serializer masks asset hashes (Lambda jars,
   `BucketDeployment` bundles) so snapshots only churn on real infrastructure
   changes; asset paths are stack props, so tests synth against small
   placeholder files instead of requiring built jars.
@@ -124,10 +150,8 @@ power in the bootstrap roles:
 ### Prerequisites (manual, one-off — phase 0)
 
 The [phase-0-runbook](phase-0-runbook.md) owns the step-by-step detail
-(domain/zone, bootstrap checks, CI stack, GHA environments, verification, and
-what's deferred to phase 5). One design note belongs here: the custom domain
-stays in the skeleton deliberately — it's the one prerequisite with real lead
-time.
+(certificates, SSM parameters, bootstrap check, CI stack, GHA environments,
+verification, and what's deferred to phase 5).
 
 ## Notes
 

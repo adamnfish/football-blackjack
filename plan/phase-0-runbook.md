@@ -1,26 +1,33 @@
 # Phase 0 runbook — manual setup steps
 
 The one-off manual work that unblocks the walking skeleton
-([00-overview](00-overview.md)). Five steps in dependency order; only step 1
-has real lead time, the rest is an hour or two of account/repo admin once the
-CI stack is written. Run with your own admin credentials — this is the
-chicken-and-egg work that creates what the pipeline authenticates with.
+([00-overview](00-overview.md)). Five steps in dependency order — an hour or
+two of account/repo admin once the CI stack is written. Run with your own
+admin credentials — this is the chicken-and-egg work that creates what the
+pipeline authenticates with.
 
-**Open decisions needed to execute:** the domain itself, and the AWS region for
-the app stacks.
+**Open decision needed to execute:** the AWS region for the app stacks. The
+stage domain names are decided out-of-band and deliberately never written
+into the repo — they live only in SSM (step 1).
 
-## 1. Domain and hosted zone
+## 1. Certificates and SSM parameters
 
-- [ ] Choose and register the domain — the step with lead time (registration
-      and any DNS propagation are the slow parts)
-- [ ] Create the Route53 hosted zone (automatic if registered through Route53;
-      otherwise create the zone and point the registrar's NS records at it)
-- [ ] Decide the per-stage names — they feed stage config: e.g. `test.<domain>`
-      for test, apex or `www` for prod
+The parent domain's Route53 zone already exists in this account; the stage
+domains are subdomains of it, and the app stacks create their alias records —
+nothing to register.
 
-Certificates are **not** manual: the app stacks create ACM certs in phase 1
-with DNS validation, which is why the zone must exist first. CloudFront
-requires its cert in **us-east-1** — see the bootstrap note below.
+- [ ] Request one ACM certificate per stage domain in **us-east-1** (CloudFront
+      requires that region), DNS-validated — one click to create the
+      validation records since the zone is in the same account
+- [ ] Create the three SSM parameters per stage (plain `String`, in the
+      app-stack region):
+      - `/football-blackjack/{stage}/domain-name`
+      - `/football-blackjack/{stage}/hosted-zone-id`
+      - `/football-blackjack/{stage}/certificate-arn`
+
+The stacks resolve these at deploy time ([08-infrastructure](08-infrastructure.md)).
+Remember `cdk diff` never shows their values: repointing a parameter takes
+effect silently on the next deploy.
 
 ## 2. CDK bootstrap (verify rather than do)
 
@@ -29,21 +36,20 @@ requires its cert in **us-east-1** — see the bootstrap note below.
       leave it alone (decided: bootstrap roles stay unmodified —
       [08-infrastructure](08-infrastructure.md))
 - [ ] If absent: `cdk bootstrap aws://<account>/<region>` with admin credentials
-- [ ] Also check/bootstrap **us-east-1**: if the app stack creates the
-      CloudFront cert cross-region (CDK's `certificates` support uses a
-      us-east-1 support stack), that region needs bootstrapping too — better
-      caught now than mid-deploy in phase 1
+
+Only the app-stack region needs bootstrapping: the certs are created manually
+(step 1), so there's no cross-region cert support stack and us-east-1 stays
+untouched.
 
 ## 3. Write and deploy the CI stack
 
-The one phase-0 item that's code: a small CDK stack in `infrastructure/`,
-deployed once manually with admin credentials. Contents
-([08-infrastructure](08-infrastructure.md) has the full scoping rationale):
+The one phase-0 item that's code: a small CDK stack in `infrastructure/`
+containing just the two deploy roles, deployed once manually with admin
+credentials and never from CI/CD. The account's existing GitHub OIDC identity
+provider is referenced by its deterministic ARN, not provisioned
+([08-infrastructure](08-infrastructure.md) has the detail and full scoping
+rationale):
 
-- **GitHub OIDC identity provider** for `token.actions.githubusercontent.com`
-  - [ ] Check first whether one already exists — an account can only hold one
-        provider per URL, and in a shared account another project may have
-        created it. If so, the CI stack references it instead of creating it
 - **Two deploy roles** (test, prod), each with:
   - Trust policy: federated via the OIDC provider, `aud` =
     `sts.amazonaws.com`, `sub` =
@@ -62,7 +68,9 @@ In repo Settings → Environments:
 - [ ] Create environments `test` and `prod` — names must match the trust
       policies exactly
 - [ ] In each, store that stage's deploy role ARN and the AWS region as
-      environment variables (consumed by `aws-actions/configure-aws-credentials`)
+      environment variables (consumed by `aws-actions/configure-aws-credentials`) —
+      the only per-stage config GitHub holds; everything else is discovered
+      from SSM (step 1)
 - [ ] Optional, later: required-reviewer protection on `prod` — with the OIDC
       trust pinned to the environment this is a real security control, not
       just process; the plan leaves it as a one-click knob to add if wanted
@@ -76,6 +84,13 @@ In repo Settings → Environments:
 
 When both environments return the assumed-role identity, phase 0 is done and
 phase 1 is unblocked.
+
+- [ ] Finally, record what was done as the first operator doc in `docs/`:
+      region, deploy role ARNs, the SSM parameter names, where the certs and
+      zone live, and any deviations from this runbook. This runbook is the
+      plan; the record is the as-built, and it's what future maintenance
+      works from. Domain names stay out of the repo — reference the SSM
+      parameters, never their values.
 
 ## Explicitly deferred to phase 5
 
