@@ -33,17 +33,20 @@ the deploy roles stop authenticating. The fix is to add the provider to the CI s
 
 The role ARNs are stack outputs, named `DeployRoleArntest` and `DeployRoleArnprod`.
 
-## GitHub environment variables
+## GitHub environment configuration
 
-Each GitHub environment holds exactly two variables. Create them in the repository settings under Environments, as
-variables rather than secrets. GitHub holds no other per-stage configuration.
+Each GitHub environment holds one secret and one variable. Create them in the repository settings under Environments.
+GitHub holds no other per-stage configuration.
 
-| Variable name         | Value                                                                    |
-|-----------------------|--------------------------------------------------------------------------|
-| `AWS_DEPLOY_ROLE_ARN` | The matching `DeployRoleArn` output of the `FootballBlackjack-ci` stack |
-| `AWS_REGION`          | The app stack region                                                     |
+| Name                  | Kind     | Value                                                                   |
+|-----------------------|----------|-------------------------------------------------------------------------|
+| `AWS_DEPLOY_ROLE_ARN` | secret   | The matching `DeployRoleArn` output of the `FootballBlackjack-ci` stack |
+| `AWS_REGION`          | variable | The app stack region                                                    |
 
-The deploy workflows read these as `vars.AWS_DEPLOY_ROLE_ARN` and `vars.AWS_REGION` and pass them to
+The role ARN is a secret because it contains the AWS account ID. Secrets are masked in workflow logs and workflow logs
+are public in public repositories.
+
+The deploy workflows read these as `secrets.AWS_DEPLOY_ROLE_ARN` and `vars.AWS_REGION` and pass them to
 `aws-actions/configure-aws-credentials`.
 
 ## Stage configuration in SSM

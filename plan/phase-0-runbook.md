@@ -72,9 +72,9 @@ In repo Settings → Environments:
 
 - [ ] Create environments `test` and `prod` — names must match the trust
       policies exactly
-- [ ] In each, create the two environment *variables* (not secrets):
-      `AWS_DEPLOY_ROLE_ARN` (that stage's CI-stack output) and `AWS_REGION`
-      (the app-stack region), consumed by
+- [ ] In each, create the secret `AWS_DEPLOY_ROLE_ARN` (that stage's CI-stack
+      output; a secret so the account id stays masked in the public repo's
+      logs) and the variable `AWS_REGION` (the app-stack region), consumed by
       `aws-actions/configure-aws-credentials` — the only per-stage config
       GitHub holds; everything else is discovered from SSM (step 1). Exact
       details in [docs/bootstrap.md](../docs/bootstrap.md)
