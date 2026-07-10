@@ -37,6 +37,36 @@ Each stage has three SSM parameters in the app stack region. The app stacks reso
 - `/football-blackjack/{stage}/hosted-zone-id`
 - `/football-blackjack/{stage}/certificate-arn`
 
+The hosted zone ID is the ID of the parent zone in this account, from the Route53 console. It is never the fixed CloudFront alias zone ID, which is hardcoded in the app stacks.
+
+Create the parameters with the AWS CLI. Set the variables, then run the three commands. Run the whole block once per stage.
+
+```sh
+PROFILE=admin-profile-name
+REGION=app-stack-region
+STAGE=test
+DOMAIN_NAME=stage-domain-name
+HOSTED_ZONE_ID=route53-parent-zone-id
+CERTIFICATE_ARN=acm-cert-arn-in-us-east-1
+
+aws ssm put-parameter --profile "$PROFILE" --region "$REGION" \
+  --name "/football-blackjack/$STAGE/domain-name" \
+  --value "$DOMAIN_NAME" --type String \
+  --tags Key=app,Value=football-blackjack "Key=stage,Value=$STAGE"
+
+aws ssm put-parameter --profile "$PROFILE" --region "$REGION" \
+  --name "/football-blackjack/$STAGE/hosted-zone-id" \
+  --value "$HOSTED_ZONE_ID" --type String \
+  --tags Key=app,Value=football-blackjack "Key=stage,Value=$STAGE"
+
+aws ssm put-parameter --profile "$PROFILE" --region "$REGION" \
+  --name "/football-blackjack/$STAGE/certificate-arn" \
+  --value "$CERTIFICATE_ARN" --type String \
+  --tags Key=app,Value=football-blackjack "Key=stage,Value=$STAGE"
+```
+
+`put-parameter` rejects `--tags` when the parameter already exists. To change an existing value, pass `--overwrite` and omit `--tags`. Existing tags survive an overwrite.
+
 Domain names must not be written into this repository. Reference the parameter names, never their values. `cdk diff` does not show changes to parameter values. A repointed parameter takes effect on the next deploy.
 
 ## Certificates

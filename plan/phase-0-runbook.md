@@ -24,7 +24,8 @@ nothing to register.
       stack creates those in phase 1. Leave the validation CNAMEs in place so
       ACM renews the certs automatically
 - [ ] Create the three SSM parameters per stage (plain `String`, in the
-      app-stack region):
+      app-stack region; [docs/bootstrap.md](../docs/bootstrap.md) has
+      copy-paste CLI commands including the required tags):
       - `/football-blackjack/{stage}/domain-name`
       - `/football-blackjack/{stage}/hosted-zone-id`
       - `/football-blackjack/{stage}/certificate-arn`
