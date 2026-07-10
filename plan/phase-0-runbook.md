@@ -84,10 +84,10 @@ In repo Settings → Environments:
 
 ## 5. Verify — the phase 0 "done when"
 
-- [ ] A throwaway `workflow_dispatch` workflow (or the skeleton of the deploy
-      workflow) with `permissions: id-token: write`, running
-      `configure-aws-credentials` with the role ARN then
-      `aws sts get-caller-identity`, once per environment
+- [ ] Dispatch the deploy workflow skeleton
+      (`.github/workflows/deploy.yml` — OIDC auth +
+      `aws sts get-caller-identity`, grown into the real deploy in phase 1)
+      once per environment
 
 When both environments return the assumed-role identity, phase 0 is done and
 phase 1 is unblocked.
