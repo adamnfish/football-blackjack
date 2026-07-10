@@ -69,9 +69,11 @@ needs, twice (test and production stages).
     [05-lambdas](05-lambdas.md)) + HTTP API with the `POST /api/{operation}`
     proxy route
   - webroot S3 bucket (private, OAC) + CloudFront distribution: default behaviour
-    → S3 (SPA fallback for client routes → `index.html`), `/api/*` behaviour →
-    HTTP API origin (caching disabled); stage domain + imported cert, both
-    resolved from SSM at deploy time
+    → S3, `/api/*` behaviour → HTTP API origin (caching disabled); stage domain
+    + imported cert, both resolved from SSM at deploy time. SPA fallback for
+    client routes is a viewer-request CloudFront Function on the S3 behaviour
+    rewriting extensionless paths to `index.html` — not distribution-wide
+    error responses, which would rewrite API error bodies too
   - DNS: A/AAAA alias records for the stage domain as one L1
     `CfnRecordSetGroup` — the L2 `ARecord` does synth-time string logic on
     record names, which silently misbehaves on deploy-time tokens; alias
