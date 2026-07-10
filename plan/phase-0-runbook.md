@@ -17,8 +17,12 @@ domains are subdomains of it, and the app stacks create their alias records —
 nothing to register.
 
 - [ ] Request one ACM certificate per stage domain in **us-east-1** (CloudFront
-      requires that region), DNS-validated — one click to create the
-      validation records since the zone is in the same account
+      requires that region), with DNS validation. No ordering problem with
+      the stage domains: validation needs only a CNAME in the existing parent
+      zone (the console's "Create records in Route53" button adds it in one
+      click); the stage domains' own records don't need to exist — the app
+      stack creates those in phase 1. Leave the validation CNAMEs in place so
+      ACM renews the certs automatically
 - [ ] Create the three SSM parameters per stage (plain `String`, in the
       app-stack region):
       - `/football-blackjack/{stage}/domain-name`
