@@ -56,9 +56,19 @@ environment, then **e2e-test** against test.
   + the specific GHA environment; the workflow's `permissions: id-token: write`
   + `aws-actions/configure-aws-credentials` with the role ARN, setting
   `mask-aws-account-id: true` explicitly so the account id is masked in log
-  output from later steps too (e.g. ARNs printed by `cdk deploy`). The roles
-  need what `cdk deploy` needs (assume the CDK bootstrap roles) plus artifact
-  upload.
+  output from later steps too (e.g. ARNs printed by `cdk deploy`). As a
+  belt-and-braces second layer, every workflow that assumes a role also masks
+  the account id itself immediately after authenticating:
+
+  ```yaml
+  - name: Mask AWS account id
+    run: |
+      ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+      echo "::add-mask::${ACCOUNT_ID}"
+  ```
+
+  The roles need what `cdk deploy` needs (assume the CDK bootstrap roles)
+  plus artifact upload.
 - **GHA environments**: `test` and `prod` hold only the secret
   `AWS_DEPLOY_ROLE_ARN` (a secret so the account id is masked in the public
   repo's logs) and the variable `AWS_REGION` (documented in
