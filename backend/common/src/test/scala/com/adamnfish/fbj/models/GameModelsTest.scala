@@ -8,9 +8,19 @@ import java.time.Instant
 
 class GameModelsTest extends FunSuite {
   def team(id: String): Team =
-    Team(TeamId(id), TeamTLA(id.take(3).toUpperCase), TeamName(id, id), s"https://example.com/$id.png")
+    Team(
+      TeamId(id),
+      TeamTLA(id.take(3).toUpperCase),
+      TeamName(id, id),
+      s"https://example.com/$id.png"
+    )
 
-  def teamStats(goalsFor: Int, goalsAgainst: Int, progress: Progress, status: Status): TeamStats =
+  def teamStats(
+      goalsFor: Int,
+      goalsAgainst: Int,
+      progress: Progress,
+      status: Status
+  ): TeamStats =
     TeamStats(Score(goalsFor, goalsAgainst), progress, status)
 
   def player(id: String, teams: List[TeamId]): Player =
@@ -30,7 +40,12 @@ class GameModelsTest extends FunSuite {
       Map(
         team("england") -> teamStats(3, 1, Progress.Group(2), Status.Playing),
         team("brazil") -> teamStats(5, 0, Progress.Knockout(8), Status.Playing),
-        team("scotland") -> teamStats(0, 4, Progress.NotStarted, Status.Eliminated)
+        team("scotland") -> teamStats(
+          0,
+          4,
+          Progress.NotStarted,
+          Status.Eliminated
+        )
       )
     )
 
@@ -51,7 +66,12 @@ class GameModelsTest extends FunSuite {
   }
 
   test("Progress round trips through JSON, for every case") {
-    val values = List(Progress.NotStarted, Progress.Group(3), Progress.Knockout(16), Progress.TopFour(1))
+    val values = List(
+      Progress.NotStarted,
+      Progress.Group(3),
+      Progress.Knockout(16),
+      Progress.TopFour(1)
+    )
     values.foreach { value =>
       assertEquals(decode[Progress](value.asJson.noSpaces), Right(value))
     }
@@ -89,17 +109,27 @@ class GameModelsTest extends FunSuite {
     assertEquals(decode[Competition](value.asJson.noSpaces), Right(value))
   }
 
-  test("CompetitionStats round trips through JSON, including its Map[Team, TeamStats]") {
+  test(
+    "CompetitionStats round trips through JSON, including its Map[Team, TeamStats]"
+  ) {
     val value = competitionStats
     assertEquals(decode[CompetitionStats](value.asJson.noSpaces), Right(value))
   }
 
-  test("CompetitionStats JSON keys the teams map using Team's own JSON encoding") {
+  test(
+    "CompetitionStats JSON keys the teams map using Team's own JSON encoding"
+  ) {
     val json = competitionStats.asJson
     val teamsObject = json.hcursor.downField("teams").focus.flatMap(_.asObject)
-    assert(teamsObject.isDefined, "expected teams to be encoded as a JSON object")
+    assert(
+      teamsObject.isDefined,
+      "expected teams to be encoded as a JSON object"
+    )
     val keys = teamsObject.get.keys.toList
-    assert(keys.forall(key => decode[Team](key).isRight), s"expected all map keys to be Team JSON, got: $keys")
+    assert(
+      keys.forall(key => decode[Team](key).isRight),
+      s"expected all map keys to be Team JSON, got: $keys"
+    )
   }
 
   test("Game round trips through JSON") {
