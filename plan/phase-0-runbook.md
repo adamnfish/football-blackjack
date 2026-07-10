@@ -1,5 +1,10 @@
 # Phase 0 runbook — manual setup steps
 
+**Status: complete (2026-07-10)** — both environments verified via the deploy
+workflow skeleton; the as-built setup is recorded in
+[docs/bootstrap.md](../docs/bootstrap.md). Kept as the record of what was done
+and why.
+
 The one-off manual work that unblocks the walking skeleton
 ([00-overview](00-overview.md)). Five steps in dependency order — an hour or
 two of account/repo admin once the CI stack is written. Run with your own
@@ -16,14 +21,14 @@ The parent domain's Route53 zone already exists in this account; the stage
 domains are subdomains of it, and the app stacks create their alias records —
 nothing to register.
 
-- [ ] Request one ACM certificate per stage domain in **us-east-1** (CloudFront
+- [x] Request one ACM certificate per stage domain in **us-east-1** (CloudFront
       requires that region), with DNS validation. No ordering problem with
       the stage domains: validation needs only a CNAME in the existing parent
       zone (the console's "Create records in Route53" button adds it in one
       click); the stage domains' own records don't need to exist — the app
       stack creates those in phase 1. Leave the validation CNAMEs in place so
       ACM renews the certs automatically
-- [ ] Create the three SSM parameters per stage (plain `String`, in the
+- [x] Create the three SSM parameters per stage (plain `String`, in the
       app-stack region; [docs/bootstrap.md](../docs/bootstrap.md) has
       copy-paste CLI commands including the required tags):
       - `/football-blackjack/{stage}/domain-name`
@@ -36,11 +41,11 @@ effect silently on the next deploy.
 
 ## 2. CDK bootstrap (verify rather than do)
 
-- [ ] Check for a `CDKToolkit` CloudFormation stack in the target region — the
+- [x] Check for a `CDKToolkit` CloudFormation stack in the target region — the
       account is shared, so it's likely already bootstrapped. If present,
       leave it alone (decided: bootstrap roles stay unmodified —
       [08-infrastructure](08-infrastructure.md))
-- [ ] If absent: `cdk bootstrap aws://<account>/<region>` with admin credentials
+- [x] If absent: `cdk bootstrap aws://<account>/<region>` with admin credentials
 
 Only the app-stack region needs bootstrapping: the certs are created manually
 (step 1), so there's no cross-region cert support stack and us-east-1 stays
@@ -64,15 +69,15 @@ rationale):
   - Permissions: **only** `sts:AssumeRole` on the CDK bootstrap roles
     (`cdk-*-deploy-role`, `cdk-*-file-publishing-role`, `cdk-*-lookup-role`) —
     no direct resource permissions
-- [ ] Deploy it and note the two role ARNs from the stack outputs
+- [x] Deploy it and note the two role ARNs from the stack outputs
 
 ## 4. GitHub repository configuration
 
 In repo Settings → Environments:
 
-- [ ] Create environments `test` and `prod` — names must match the trust
+- [x] Create environments `test` and `prod` — names must match the trust
       policies exactly
-- [ ] In each, create the secret `AWS_DEPLOY_ROLE_ARN` (that stage's CI-stack
+- [x] In each, create the secret `AWS_DEPLOY_ROLE_ARN` (that stage's CI-stack
       output; a secret so the account id stays masked in the public repo's
       logs) and the variable `AWS_REGION` (the app-stack region), consumed by
       `aws-actions/configure-aws-credentials` — the only per-stage config
@@ -84,7 +89,7 @@ In repo Settings → Environments:
 
 ## 5. Verify — the phase 0 "done when"
 
-- [ ] Dispatch the deploy workflow skeleton
+- [x] Dispatch the deploy workflow skeleton
       (`.github/workflows/deploy.yml` — OIDC auth +
       `aws sts get-caller-identity`, grown into the real deploy in phase 1)
       once per environment
@@ -92,7 +97,7 @@ In repo Settings → Environments:
 When both environments return the assumed-role identity, phase 0 is done and
 phase 1 is unblocked.
 
-- [ ] Finally, record what was done as the first operator doc in `docs/`:
+- [x] Finally, record what was done as the first operator doc in `docs/`:
       region, deploy role ARNs, the SSM parameter names, where the certs and
       zone live, and any deviations from this runbook. This runbook is the
       plan; the record is the as-built, and it's what future maintenance

@@ -1,6 +1,6 @@
 # 08 — Infrastructure (CDK)
 
-**Status: designed · Phase 0 (prerequisites + CI stack) / Phase 1 (skeleton stack) / Phases 4–5 (data layer)**
+**Status: phase 0 complete (CI stack deployed 2026-07-10) · phase 1 skeleton stacks built (PR #5) · Phases 4–5 (data layer) still to come**
 
 ## Goal
 

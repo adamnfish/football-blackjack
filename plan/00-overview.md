@@ -26,7 +26,36 @@ own session and written back into its doc.
 
 ## Current state
 
-Done and tested:
+**Phase 0 is complete** (2026-07-10): certificates and SSM parameters created,
+the CI stack (the two GHA deploy roles) deployed, `test`/`prod` GHA
+environments configured, OIDC verified from both environments via the deploy
+workflow skeleton. As-built record: [docs/bootstrap.md](../docs/bootstrap.md).
+
+**Phase 1 slices 1–4 are built and pushed**, awaiting review as a stacked PR
+chain — merge in order [#4](https://github.com/adamnfish/football-blackjack/pull/4)
+→ [#5](https://github.com/adamnfish/football-blackjack/pull/5)
+→ [#6](https://github.com/adamnfish/football-blackjack/pull/6)
+→ [#7](https://github.com/adamnfish/football-blackjack/pull/7)
+(GitHub retargets each as its base merges):
+
+- **#4** stub api Lambda (200 "ok" to any `POST /api/{operation}`) +
+  sbt-assembly packaging ([05-lambdas](05-lambdas.md))
+- **#5** skeleton app stacks — CloudFront/S3/HTTP API/Lambda, SSM-resolved
+  domain config, DNS records — with per-stage snapshot tests
+  ([08-infrastructure](08-infrastructure.md))
+- **#6** build-and-test workflow: backend, frontend, and infrastructure jobs
+  ([09-cicd](09-cicd.md))
+- **#7** stub Cask dev server + Vite `/api` proxy + minimal Playwright e2e
+  suite and its CI job with screenshot artifacts
+  ([06-dev-server](06-dev-server.md), [10-e2e-tests](10-e2e-tests.md))
+
+**Next, once the chain merges** — the remaining phase 1 slice: grow
+`deploy.yml` into the real deploy (build-and-test → sbt assembly + frontend
+build → `cdk deploy`), first deploy to test, verify the hello-world app at the
+stage domain, then the e2e-test workflow against deployed environments
+([09-cicd](09-cicd.md)).
+
+Done and tested (pre-skeleton foundations):
 
 - Domain models with circe codecs: `backend/common/src/main/scala/com/adamnfish/fbj/models/`
 - API message types (`Request`/`Response`/`Errors`): `models/messages.scala`
@@ -41,9 +70,8 @@ Stubbed (`???`):
 Missing entirely:
 
 - Any `Persistence` implementation
-- `backend/api`, `backend/data-service`, `backend/dev-server` (declared in `build.sbt`, directories don't exist)
-- Frontend beyond a hello-world Elm shell
-- CDK resources (empty stack class)
+- `backend/data-service` (declared in `build.sbt`, no sources until phase 5)
+- Frontend beyond the hello-world Elm shell
 
 ## Build strategy: walking skeleton
 
@@ -66,6 +94,7 @@ environments in repo settings ([09-cicd](09-cicd.md)). Step-by-step checklist:
 [phase-0-runbook](phase-0-runbook.md).
 
 **Done when** a GitHub Actions workflow can assume a deploy role via OIDC.
+✅ **Complete 2026-07-10.**
 
 ### Phase 1 — walking skeleton
 
@@ -81,7 +110,8 @@ suite: page loads + screenshot, `/api/ping` is 200 ([10-e2e-tests](10-e2e-tests.
 **Done when** the test environment serves the hello-world frontend at its domain
 and `POST /api/ping` returns 200 through CloudFront; PRs run build-and-test
 including the local e2e suite with screenshot artifacts; a prod deploy works the
-same way.
+same way. **In progress: everything except the real deploy workflow is built,
+in PRs #4–#7 (see Current state).**
 
 ### Phase 2 — working backwards from the UI
 
@@ -206,9 +236,9 @@ fail the build ([08-infrastructure](08-infrastructure.md)).
 | [02-persistence](02-persistence.md) | persistence implementations | designed | 2 (in-memory), 4 (DynamoDB) |
 | [03-api](03-api.md) | API game logic | designed | 2 (incremental) |
 | [04-competition-job](04-competition-job.md) | competition job | designed | 5 |
-| [05-lambdas](05-lambdas.md) | Lambda handlers | designed | 1 (api stub), 5 (full) |
-| [06-dev-server](06-dev-server.md) | local dev server | designed | 1 (stub), 2–4 (grows) |
+| [05-lambdas](05-lambdas.md) | Lambda handlers | api stub in PR #4 | 1 (api stub), 5 (full) |
+| [06-dev-server](06-dev-server.md) | local dev server | stub in PR #7 | 1 (stub), 2–4 (grows) |
 | [07-frontend](07-frontend.md) | Elm SPA | designed | 1 (hello world), 2 (flows) |
-| [08-infrastructure](08-infrastructure.md) | CDK infrastructure | designed | 0–1 (skeleton), 4–5 (data layer) |
-| [09-cicd](09-cicd.md) | GitHub Actions CI/CD | designed | 1 |
-| [10-e2e-tests](10-e2e-tests.md) | end-to-end tests | designed | 1, then continuous |
+| [08-infrastructure](08-infrastructure.md) | CDK infrastructure | CI stack deployed; app stacks in PR #5 | 0–1 (skeleton), 4–5 (data layer) |
+| [09-cicd](09-cicd.md) | GitHub Actions CI/CD | build-and-test in PR #6; deploy skeleton merged, real deploy pending | 1 |
+| [10-e2e-tests](10-e2e-tests.md) | end-to-end tests | minimal suite in PR #7 | 1, then continuous |
