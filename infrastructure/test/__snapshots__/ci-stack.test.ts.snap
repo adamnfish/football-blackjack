@@ -65,6 +65,10 @@ exports[`CI stack > synthesizes the expected CloudFormation template 1`] = `
         "RoleName": "football-blackjack-deploy-prod",
         "Tags": [
           {
+            "Key": "app",
+            "Value": "football-blackjack",
+          },
+          {
             "Key": "stage",
             "Value": "prod",
           },
@@ -176,6 +180,10 @@ exports[`CI stack > synthesizes the expected CloudFormation template 1`] = `
         "Description": "GitHub Actions deploy role for the test environment",
         "RoleName": "football-blackjack-deploy-test",
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "football-blackjack",
+          },
           {
             "Key": "stage",
             "Value": "test",

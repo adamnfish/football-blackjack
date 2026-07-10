@@ -8,11 +8,10 @@ const BOOTSTRAP_QUALIFIER = "hnb659fds";
 export const STAGES = ["test", "prod"] as const;
 
 /**
- * Once-per-account CI stack: the two GitHub Actions deploy roles.
+ * Once-per-account CI stack: the roles for the GitHub Actions to deploy to each environment.
  *
- * Deployed manually with admin credentials, never from CI/CD. The account's
- * GitHub OIDC identity provider is shared infrastructure owned by another
- * project; it is referenced by its deterministic ARN, never created here.
+ * Deployed manually with admin credentials. Assumes a shared GitHub OIDC identity provider already exists.
+ * It is referenced by its deterministic ARN.
  */
 export class CiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -34,9 +33,7 @@ export class CiStack extends cdk.Stack {
         }),
       });
 
-      // The only permission: assume the CDK bootstrap roles that
-      // `cdk deploy` operates through (region wildcarded; IAM role names
-      // embed the bootstrapped region)
+      // The only permission granted is to assume the CDK bootstrap roles that `cdk deploy` uses
       role.addToPolicy(
         new iam.PolicyStatement({
           actions: ["sts:AssumeRole"],
