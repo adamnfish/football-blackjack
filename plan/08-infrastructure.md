@@ -53,7 +53,7 @@ needs, twice (test and production stages).
   `/api/*` to the HTTP API origin: same-origin everywhere, no CORS, matching the
   Vite-proxy dev setup.
 - **CDK snapshot tests** — the synth'd CloudFormation for both stages is
-  committed as jest snapshots, so every infrastructure change (or its absence)
+  committed as vitest snapshots, so every infrastructure change (or its absence)
   appears explicitly in the PR diff, and unexpected template changes fail
   build-and-test.
 
@@ -130,7 +130,7 @@ power in the bootstrap roles:
 
 ### Snapshot tests (phase 1, maintained throughout)
 
-- jest in the `infrastructure` package: synth the app for both stages with
+- vitest in the `infrastructure` package: synth the app for both stages with
   pinned config and assert `Template.fromStack(...).toJSON()` against committed
   snapshots. Both real stages are snapshot (not a synthetic third stage) so
   per-stage differences — prod's `RemovalPolicy.RETAIN`, the schedule's enabled
@@ -143,7 +143,7 @@ power in the bootstrap roles:
   `BucketDeployment` bundles) so snapshots only churn on real infrastructure
   changes; asset paths are stack props, so tests synth against small
   placeholder files instead of requiring built jars.
-- Snapshots are updated deliberately (`jest -u`) in the same change that causes
+- Snapshots are updated deliberately (`vitest -u`) in the same change that causes
   them — the reviewer sees the CloudFormation delta alongside the CDK code
   change.
 

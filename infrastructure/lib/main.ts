@@ -1,14 +1,9 @@
 import * as cdk from "aws-cdk-lib";
-import { Construct } from "constructs";
-
-class FootballBlackjackStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
-
-    // Infrastructure resources will be defined here
-  }
-}
+import { CiStack } from "./ci-stack.js";
 
 const app = new cdk.App();
-new FootballBlackjackStack(app, "FootballBlackjackStack");
+cdk.Tags.of(app).add("app", "football-blackjack");
 
+// Once-per-account CI stack, deployed manually (phase 0).
+// The per-stage app stacks (FootballBlackjack-test/-prod) arrive in phase 1.
+new CiStack(app, "FootballBlackjack-ci");

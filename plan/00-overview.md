@@ -158,7 +158,7 @@ them:
    functions.
 
 Plus, for infrastructure: **CDK snapshot tests** — the synth'd CloudFormation
-for both stages is committed as jest snapshots (asset hashes masked), so
+for both stages is committed as vitest snapshots (asset hashes masked), so
 expected infrastructure changes appear explicitly in diffs and unexpected ones
 fail the build ([08-infrastructure](08-infrastructure.md)).
 
