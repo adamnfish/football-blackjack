@@ -1,0 +1,41 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to
+        required: true
+        type: choice
+        options:
+          - test
+          - prod
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+
+      # Belt-and-braces second masking layer: registers the account id as a
+      # masked value for all subsequent log output in this job
+      - name: Mask AWS account id
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+          echo "::add-mask::${ACCOUNT_ID}"
+
+      - name: Verify assumed identity
+        run: aws sts get-caller-identity
+
+      # Phase 1 grows this into the real deploy:
+      # checkout -> build-and-test -> sbt assembly + frontend build -> cdk deploy
