@@ -11,9 +11,6 @@
     "resolveJsonModule": true,
     "moduleResolution": "node"
   },
-  "ts-node": {
-    "esm": true
-  },
-  "include": ["lib/**/*"],
+  "include": ["lib/**/*", "test/**/*"],
   "exclude": ["node_modules", "cdk.out"]
 }

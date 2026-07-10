@@ -1,5 +1,6 @@
 {
-  "app": "ts-node --esm lib/main.ts",
+  "app": "tsx lib/main.ts",
+  "versionReporting": false,
   "watch": {
     "include": ["**"],
     "exclude": ["README.md", "cdk*.json", "**/*.d.ts", "tsconfig.json", "tslint.json", "node_modules"]
