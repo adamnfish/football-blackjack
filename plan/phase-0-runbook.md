@@ -72,10 +72,12 @@ In repo Settings → Environments:
 
 - [ ] Create environments `test` and `prod` — names must match the trust
       policies exactly
-- [ ] In each, store that stage's deploy role ARN and the AWS region as
-      environment variables (consumed by `aws-actions/configure-aws-credentials`) —
-      the only per-stage config GitHub holds; everything else is discovered
-      from SSM (step 1)
+- [ ] In each, create the two environment *variables* (not secrets):
+      `AWS_DEPLOY_ROLE_ARN` (that stage's CI-stack output) and `AWS_REGION`
+      (the app-stack region), consumed by
+      `aws-actions/configure-aws-credentials` — the only per-stage config
+      GitHub holds; everything else is discovered from SSM (step 1). Exact
+      details in [docs/bootstrap.md](../docs/bootstrap.md)
 - [ ] Optional, later: required-reviewer protection on `prod` — with the OIDC
       trust pinned to the environment this is a real security control, not
       just process; the plan leaves it as a one-click knob to add if wanted

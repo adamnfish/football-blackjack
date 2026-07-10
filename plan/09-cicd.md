@@ -56,8 +56,10 @@ environment, then **e2e-test** against test.
   + the specific GHA environment; the workflow's `permissions: id-token: write`
   + `aws-actions/configure-aws-credentials` with the role ARN. The roles need
   what `cdk deploy` needs (assume the CDK bootstrap roles) plus artifact upload.
-- **GHA environments**: `test` and `prod` hold only the deploy role ARN and
-  region — all other stage config is discovered from SSM at deploy time
+- **GHA environments**: `test` and `prod` hold only the variables
+  `AWS_DEPLOY_ROLE_ARN` and `AWS_REGION` (documented in
+  [docs/bootstrap.md](../docs/bootstrap.md)) — all other stage config is
+  discovered from SSM at deploy time
   ([08-infrastructure](08-infrastructure.md)); optional required-reviewer
   protection on `prod` is a one-click knob to add later if wanted.
 - **Caching**: coursier/sbt and pnpm caches; Playwright browser cache.

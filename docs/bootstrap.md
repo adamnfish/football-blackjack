@@ -1,10 +1,12 @@
 # Bootstrap
 
-This file records the one-off account setup that CI/CD depends on. The plan for these steps is in [plan/phase-0-runbook.md](../plan/phase-0-runbook.md). Update this file when any of these resources change.
+This file records the one-off account setup that CI/CD depends on. The plan for these steps is
+in [plan/phase-0-runbook.md](../plan/phase-0-runbook.md). Update this file when any of these resources change.
 
 ## CI stack
 
-The `FootballBlackjack-ci` CloudFormation stack contains the two GitHub Actions deploy roles. It is defined in `infrastructure/lib/ci-stack.ts`.
+The `FootballBlackjack-ci` CloudFormation stack contains the two GitHub Actions deploy roles. It is defined in
+`infrastructure/lib/ci-stack.ts`.
 
 Deploy it manually with admin credentials:
 
@@ -16,18 +18,33 @@ pnpm exec cdk deploy FootballBlackjack-ci
 
 Do not deploy this stack from CI/CD. The deploy roles should not manage the stack that defines them.
 
-Each role trusts the GitHub OIDC identity provider in this account. The trust policy only accepts workflow runs from one GitHub environment of this repository. The only permission held by each role is to assume the CDK bootstrap roles.
+Each role trusts the GitHub OIDC identity provider in this account. The trust policy only accepts workflow runs from one
+GitHub environment of this repository. The only permission held by each role is to assume the CDK bootstrap roles.
 
-The GitHub OIDC identity provider is shared account infrastructure. It was created by another project. If it is deleted the deploy roles stop authenticating. The fix is to add the provider to the CI stack.
+The GitHub OIDC identity provider is shared account infrastructure. It was created by another project. If it is deleted
+the deploy roles stop authenticating. The fix is to add the provider to the CI stack.
 
 ## Deploy roles
 
-| GitHub environment | Role name |
-|---|---|
-| test | `football-blackjack-deploy-test` |
-| prod | `football-blackjack-deploy-prod` |
+| GitHub environment | Role name                        |
+|--------------------|----------------------------------|
+| test               | `football-blackjack-deploy-test` |
+| prod               | `football-blackjack-deploy-prod` |
 
-The role ARNs are stack outputs. Each GitHub environment stores its role ARN and the AWS region as environment variables. GitHub holds no other per-stage configuration.
+The role ARNs are stack outputs, named `DeployRoleArntest` and `DeployRoleArnprod`.
+
+## GitHub environment variables
+
+Each GitHub environment holds exactly two variables. Create them in the repository settings under Environments, as
+variables rather than secrets. GitHub holds no other per-stage configuration.
+
+| Variable name         | Value                                                                    |
+|-----------------------|--------------------------------------------------------------------------|
+| `AWS_DEPLOY_ROLE_ARN` | The matching `DeployRoleArn` output of the `FootballBlackjack-ci` stack |
+| `AWS_REGION`          | The app stack region                                                     |
+
+The deploy workflows read these as `vars.AWS_DEPLOY_ROLE_ARN` and `vars.AWS_REGION` and pass them to
+`aws-actions/configure-aws-credentials`.
 
 ## Stage configuration in SSM
 
@@ -37,9 +54,11 @@ Each stage has three SSM parameters in the app stack region. The app stacks reso
 - `/football-blackjack/{stage}/hosted-zone-id`
 - `/football-blackjack/{stage}/certificate-arn`
 
-The hosted zone ID is the ID of the parent zone in this account, from the Route53 console. It is never the fixed CloudFront alias zone ID, which is hardcoded in the app stacks.
+The hosted zone ID is the ID of the parent zone in this account, from the Route53 console. It is never the fixed
+CloudFront alias zone ID, which is hardcoded in the app stacks.
 
-Create the parameters with the AWS CLI. Set the variables, then run the three commands. Run the whole block once per stage.
+Create the parameters with the AWS CLI. Set the variables, then run the three commands. Run the whole block once per
+stage.
 
 ```sh
 PROFILE=admin-profile-name
@@ -65,21 +84,13 @@ aws ssm put-parameter --profile "$PROFILE" --region "$REGION" \
   --tags Key=app,Value=football-blackjack "Key=stage,Value=$STAGE"
 ```
 
-`put-parameter` rejects `--tags` when the parameter already exists. To change an existing value, pass `--overwrite` and omit `--tags`. Existing tags survive an overwrite.
+`put-parameter` rejects `--tags` when the parameter already exists. To change an existing value, pass `--overwrite` and
+omit `--tags`. Existing tags are not removed by an overwrite.
 
-Domain names must not be written into this repository. Reference the parameter names, never their values. `cdk diff` does not show changes to parameter values. A repointed parameter takes effect on the next deploy.
+Note that `cdk diff` does not show changes to parameter values and a repointed parameter takes effect on the next
+deploy.
 
 ## Certificates
 
-Each stage has one ACM certificate in us-east-1. CloudFront requires that region. Certificates are created manually with DNS validation. Their ARNs are stored in the SSM parameters above.
-
-## As-built record
-
-Fill this in as the phase 0 steps complete.
-
-| Item | Value |
-|---|---|
-| AWS account | to be recorded |
-| App stack region | to be recorded |
-| CDK bootstrap qualifier | `hnb659fds` |
-| Deviations from the runbook | none |
+Each stage has one ACM certificate in us-east-1 because CloudFront requires that region. Certificates are created
+manually with DNS validation and their ARNs are stored in the SSM parameters above.
