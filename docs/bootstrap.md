@@ -49,6 +49,11 @@ are public in public repositories.
 The deploy workflows read these as `secrets.AWS_DEPLOY_ROLE_ARN` and `vars.AWS_REGION` and pass them to
 `aws-actions/configure-aws-credentials`.
 
+## Certificates
+
+Each stage has one ACM certificate in us-east-1 because CloudFront requires that region. Certificates are created
+manually with DNS validation and their ARNs are stored in the SSM parameters above.
+
 ## Stage configuration in SSM
 
 Each stage has three SSM parameters in the app stack region. The app stacks resolve them at deploy time.
@@ -92,8 +97,3 @@ omit `--tags`. Existing tags are not removed by an overwrite.
 
 Note that `cdk diff` does not show changes to parameter values and a repointed parameter takes effect on the next
 deploy.
-
-## Certificates
-
-Each stage has one ACM certificate in us-east-1 because CloudFront requires that region. Certificates are created
-manually with DNS validation and their ARNs are stored in the SSM parameters above.
