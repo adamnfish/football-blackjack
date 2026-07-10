@@ -71,5 +71,8 @@ lazy val devServer = (project in file("backend/dev-server"))
   .dependsOn(common)
   .settings(commonSettings)
   .settings(
-    name := "dev-server"
+    name := "dev-server",
+    libraryDependencies ++= Seq(
+      cask
+    )
   )

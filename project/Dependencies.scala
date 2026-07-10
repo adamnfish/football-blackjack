@@ -18,5 +18,7 @@ object Dependencies {
   lazy val awsCrtClient =
     "software.amazon.awssdk" % "aws-crt-client" % awsJavaSdkVersion
 
+  lazy val cask = "com.lihaoyi" %% "cask" % "0.11.3"
+
   lazy val munit = "org.scalameta" %% "munit" % "1.3.3"
 }

@@ -11,4 +11,11 @@ const pathToElm = join(dirname(require.resolve("elm/package.json")), "bin", "elm
 
 export default defineConfig({
   plugins: [elmPlugin({ nodeElmCompilerOptions: { pathToElm } })],
+  server: {
+    // Same-origin /api, matching production's CloudFront behaviour; the
+    // sbt dev server (backend/dev-server) listens on 9090
+    proxy: {
+      "/api": "http://localhost:9090",
+    },
+  },
 });

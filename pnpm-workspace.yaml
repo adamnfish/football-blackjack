@@ -1,6 +1,7 @@
 packages:
   - frontend
   - infrastructure
+  - e2e
 
 allowBuilds:
   elm: true

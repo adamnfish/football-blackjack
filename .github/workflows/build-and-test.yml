@@ -48,3 +48,54 @@ jobs:
         run: pnpm --dir infrastructure build
       - name: CDK snapshot tests
         run: pnpm --dir infrastructure test
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: sbt
+      - uses: sbt/setup-sbt@v1
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(pnpm --dir e2e exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ steps.playwright-version.outputs.version }}
+      # Skips the browser download on a cache hit; --with-deps still
+      # installs the OS packages, which aren't cached
+      - name: Install Playwright browsers
+        run: pnpm --dir e2e exec playwright install --with-deps chromium
+      - name: Start the dev server
+        run: |
+          nohup sbt --batch devServer/run > devserver.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -s -o /dev/null -X POST http://localhost:9090/api/ping; then
+              echo "dev server is up"; exit 0
+            fi
+            sleep 2
+          done
+          echo "dev server failed to start"; cat devserver.log; exit 1
+      - name: Run the e2e suite
+        run: pnpm --dir e2e test
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: e2e/screenshots/
+          if-no-files-found: ignore
+      - name: Show dev server log on failure
+        if: failure()
+        run: cat devserver.log || true
