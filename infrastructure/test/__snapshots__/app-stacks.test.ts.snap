@@ -632,7 +632,8 @@ exports[`app stacks > synthesizes the expected prod template 1`] = `
         "AutoPublish": true,
         "FunctionCode": "function handler(event) {
   var request = event.request;
-  if (!request.uri.includes(".")) {
+  var uri = request.uri;
+  if (uri !== "/api" && !uri.startsWith("/api/") && !uri.includes(".")) {
     request.uri = "/index.html";
   }
   return request;
@@ -1456,7 +1457,8 @@ exports[`app stacks > synthesizes the expected test template 1`] = `
         "AutoPublish": true,
         "FunctionCode": "function handler(event) {
   var request = event.request;
-  if (!request.uri.includes(".")) {
+  var uri = request.uri;
+  if (uri !== "/api" && !uri.startsWith("/api/") && !uri.includes(".")) {
     request.uri = "/index.html";
   }
   return request;

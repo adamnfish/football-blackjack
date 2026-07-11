@@ -17,6 +17,8 @@ const defaultAssetPaths = {
 export interface BuildAppProps {
   apiJarPath?: string;
   webrootPath?: string;
+  /** Set to false to suppress the "artifacts not found" warning (e.g. in tests). Defaults to true. */
+  warnOnMissingAssets?: boolean;
 }
 
 /**
@@ -50,7 +52,7 @@ export function buildApp(props: BuildAppProps = {}): {
       cdk.Tags.of(stack).add("stage", stage);
       appStacks[stage] = stack;
     }
-  } else {
+  } else if (props.warnOnMissingAssets !== false) {
     // eslint-disable-next-line no-console
     console.warn(
       "App stacks skipped: build the artifacts first " +

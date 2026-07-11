@@ -85,7 +85,8 @@ export class AppStack extends cdk.Stack {
       code: cloudfront.FunctionCode.fromInline(
         `function handler(event) {
   var request = event.request;
-  if (!request.uri.includes(".")) {
+  var uri = request.uri;
+  if (uri !== "/api" && !uri.startsWith("/api/") && !uri.includes(".")) {
     request.uri = "/index.html";
   }
   return request;

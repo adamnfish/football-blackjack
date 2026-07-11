@@ -4,7 +4,7 @@ import { buildApp } from "../lib/app.js";
 
 describe("CI stack", () => {
   it("synthesizes the expected CloudFormation template", () => {
-    const { ciStack } = buildApp();
+    const { ciStack } = buildApp({ warnOnMissingAssets: false });
     expect(Template.fromStack(ciStack).toJSON()).toMatchSnapshot();
   });
 });
