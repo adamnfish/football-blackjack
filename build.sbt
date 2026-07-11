@@ -59,7 +59,12 @@ lazy val api = (project in file("backend/api"))
     excludeDependencies ++= Seq(
       ExclusionRule("software.amazon.awssdk", "netty-nio-client"),
       ExclusionRule("software.amazon.awssdk", "apache-client")
-    )
+    ),
+    assembly / assemblyJarName := "api.jar",
+    assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", _*) => MergeStrategy.discard
+      case _                        => MergeStrategy.first
+    }
   )
 
 lazy val devServer = (project in file("backend/dev-server"))
