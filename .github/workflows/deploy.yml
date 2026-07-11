@@ -12,14 +12,42 @@ on:
           - prod
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
+  build-and-test:
+    uses: ./.github/workflows/build-and-test.yml
+
   deploy:
     runs-on: ubuntu-latest
+    needs: build-and-test
     environment: ${{ inputs.environment }}
+    # Deploys to the same environment queue rather than overlap; a running
+    # CloudFormation deploy is never cancelled
+    concurrency: deploy-${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: sbt
+      - uses: sbt/setup-sbt@v1
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build the api Lambda
+        run: sbt --batch api/assembly
+      - name: Build the frontend
+        run: pnpm --dir frontend build
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -34,8 +62,8 @@ jobs:
           ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
           echo "::add-mask::${ACCOUNT_ID}"
 
-      - name: Verify assumed identity
-        run: aws sts get-caller-identity
-
-      # Phase 1 grows this into the real deploy:
-      # checkout -> build-and-test -> sbt assembly + frontend build -> cdk deploy
+      - name: Deploy
+        run: >
+          pnpm --dir infrastructure exec cdk deploy
+          FootballBlackjack-${{ inputs.environment }}
+          --require-approval never

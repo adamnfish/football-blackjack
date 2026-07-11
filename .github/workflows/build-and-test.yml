@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Called by the deploy workflow, which runs the full suite before deploying
+  workflow_call:
 
 jobs:
   backend:
