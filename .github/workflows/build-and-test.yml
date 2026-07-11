@@ -1,0 +1,45 @@
+name: build-and-test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: guardian/setup-scala@v1
+      - name: Format check and tests
+        run: sbt --batch "scalafmtCheckAll; scalafmtSbtCheck; test"
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: elm-format check
+        run: pnpm --dir frontend exec elm-format --validate src/
+      - name: Build frontend
+        run: pnpm --dir frontend build
+
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm --dir infrastructure build
+      - name: CDK snapshot tests
+        run: pnpm --dir infrastructure test
