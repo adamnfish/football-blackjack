@@ -1,0 +1,9 @@
+{
+  "ValidationErrors": {
+    "message": "invalid request",
+    "fields": [
+      ["gameName", "game name is required"],
+      ["teamCount", "team count must be at least 1"]
+    ]
+  }
+}

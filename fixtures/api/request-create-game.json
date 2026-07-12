@@ -1,0 +1,6 @@
+{
+  "gameName": { "name": "Office sweepstake" },
+  "gameSettings": { "goalLimit": 25, "teamCount": 4 },
+  "competitionCode": { "code": "WC" },
+  "playerName": { "name": "Alice" }
+}

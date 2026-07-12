@@ -15,7 +15,7 @@ export default defineConfig({
     // Same-origin /api, matching production's CloudFront behaviour; the
     // sbt dev server (backend/dev-server) listens on 9090
     proxy: {
-      "/api": "http://localhost:9090",
+      "/api": process.env.API_PROXY_TARGET ?? "http://localhost:9090",
     },
   },
 });

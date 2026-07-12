@@ -1,0 +1,8 @@
+{
+  "PlayerKeysFetched": {
+    "playerKeys": {
+      "p-1": { "key": "key-abc" },
+      "p-2": { "key": "key-def" }
+    }
+  }
+}
