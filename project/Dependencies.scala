@@ -21,4 +21,6 @@ object Dependencies {
   lazy val cask = "com.lihaoyi" %% "cask" % "0.11.3"
 
   lazy val munit = "org.scalameta" %% "munit" % "1.3.4"
+  lazy val munitScalacheck =
+    "org.scalameta" %% "munit-scalacheck" % "1.1.0"
 }

@@ -20,6 +20,7 @@ lazy val common = (project in file("backend/common"))
   .settings(
     name := "common",
     libraryDependencies ++= Seq(
+      munitScalacheck % Test
     ) ++ circe
   )
 
