@@ -17,6 +17,9 @@ permissions:
 jobs:
   build-and-test:
     uses: ./.github/workflows/build-and-test.yml
+    permissions:
+      contents: read
+      actions: write
 
   deploy:
     runs-on: ubuntu-latest
