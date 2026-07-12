@@ -1,5 +1,6 @@
 /.bsp/
 target/
+devserver.log
 
 # Node
 node_modules/
