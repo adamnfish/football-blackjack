@@ -11,11 +11,23 @@ case class Game(
     id: GameId,
     gameName: GameName,
     gameSettings: GameSettings,
-    locked: Boolean,
+    lockState: LockState,
     players: List[Player],
     gameAdmin: PlayerId,
     competition: Competition
 ) derives Codec
+
+/** Whether players can join the game or edit their team selections.
+  *
+  * The effective lock is `Locked`, or `Auto` once the competition's stats show
+  * the tournament has started. `Unlocked` is an explicit admin override of the
+  * auto-lock.
+  */
+enum LockState derives Codec {
+  case Auto
+  case Locked
+  case Unlocked
+}
 
 case class GameSettings(
     goalLimit: Int,

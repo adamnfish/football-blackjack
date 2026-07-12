@@ -32,7 +32,7 @@ abstract class PersistenceContractTests extends FunSuite {
         GameId(gameId),
         GameName("world cup"),
         GameSettings(25, 4),
-        locked = false,
+        LockState.Auto,
         List(Player(playerId, PlayerName("alice"), List(TeamId("england")))),
         playerId,
         Competition(
