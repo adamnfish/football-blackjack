@@ -22,8 +22,14 @@ module Domain exposing
     , TeamName
     , TeamStats
     , TeamTLA(..)
+    , competitionHasStarted
+    , findTeam
     , gameIdToString
+    , gameNameToString
+    , isEffectivelyLocked
     , playerKeyToString
+    , playerNameToString
+    , teamIdToString
     )
 
 {-| Domain types mirroring the Scala models in
@@ -85,9 +91,24 @@ gameIdToString (GameId id) =
     id
 
 
+gameNameToString : GameName -> String
+gameNameToString (GameName name) =
+    name
+
+
 playerKeyToString : PlayerKey -> String
 playerKeyToString (PlayerKey key) =
     key
+
+
+playerNameToString : PlayerName -> String
+playerNameToString (PlayerName name) =
+    name
+
+
+teamIdToString : TeamId -> String
+teamIdToString (TeamId id) =
+    id
 
 
 
@@ -169,6 +190,44 @@ type Progress
 type Status
     = Eliminated
     | Playing
+
+
+
+-- Derived logic
+
+
+{-| The stored stats show the tournament has started once any team's progress
+is beyond `NotStarted` (see plan/03-api.md: entry deadline derived from
+stats).
+-}
+competitionHasStarted : CompetitionStats -> Bool
+competitionHasStarted stats =
+    List.any (\( _, teamStats ) -> teamStats.progress /= NotStarted) stats.teams
+
+
+{-| Whether joins and selection edits are currently rejected: `Locked`, or
+`Auto` once the competition has started. `Unlocked` is an explicit admin
+override of the auto-lock.
+-}
+isEffectivelyLocked : Game -> CompetitionStats -> Bool
+isEffectivelyLocked game stats =
+    case game.lockState of
+        Locked ->
+            True
+
+        Unlocked ->
+            False
+
+        Auto ->
+            competitionHasStarted stats
+
+
+findTeam : TeamId -> CompetitionStats -> Maybe Team
+findTeam teamId stats =
+    stats.teams
+        |> List.map Tuple.first
+        |> List.filter (\team -> team.id == teamId)
+        |> List.head
 
 
 
