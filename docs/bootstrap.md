@@ -19,7 +19,9 @@ pnpm exec cdk deploy FootballBlackjack-ci
 Do not deploy this stack from CI/CD. The deploy roles should not manage the stack that defines them.
 
 Each role trusts the GitHub OIDC identity provider in this account. The trust policy only accepts workflow runs from one
-GitHub environment of this repository. The only permission held by each role is to assume the CDK bootstrap roles.
+GitHub environment of this repository. Each role holds two permissions: it can assume the CDK bootstrap roles, and it
+can read the stage's `/football-blackjack/{stage}/domain-name` SSM parameter. The e2e-test workflow reads that
+parameter to discover the target URL.
 
 The GitHub OIDC identity provider is shared account infrastructure. It was created by another project. If it is deleted
 the deploy roles stop authenticating. The fix is to add the provider to the CI stack.
@@ -46,7 +48,7 @@ GitHub holds no other per-stage configuration.
 The role ARN is a secret because it contains the AWS account ID. Secrets are masked in workflow logs and workflow logs
 are public in public repositories.
 
-The deploy workflows read these as `secrets.AWS_DEPLOY_ROLE_ARN` and `vars.AWS_REGION` and pass them to
+The deploy and e2e-test workflows read these as `secrets.AWS_DEPLOY_ROLE_ARN` and `vars.AWS_REGION` and pass them to
 `aws-actions/configure-aws-credentials`.
 
 ## Certificates

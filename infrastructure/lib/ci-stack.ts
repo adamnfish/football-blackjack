@@ -44,6 +44,17 @@ export class CiStack extends cdk.Stack {
         }),
       );
 
+      // The e2e-test workflow reads the stage's domain name from SSM to
+      // discover the deployed target URL
+      role.addToPolicy(
+        new iam.PolicyStatement({
+          actions: ["ssm:GetParameter"],
+          resources: [
+            `arn:aws:ssm:*:${this.account}:parameter/football-blackjack/${stage}/domain-name`,
+          ],
+        }),
+      );
+
       cdk.Tags.of(role).add("stage", stage);
 
       new cdk.CfnOutput(this, `DeployRoleArn-${stage}`, {
