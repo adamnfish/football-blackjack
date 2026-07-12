@@ -134,6 +134,22 @@ exports[`CI stack > synthesizes the expected CloudFormation template 1`] = `
                 },
               ],
             },
+            {
+              "Action": "ssm:GetParameter",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:*:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/football-blackjack/prod/domain-name",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -249,6 +265,22 @@ exports[`CI stack > synthesizes the expected CloudFormation template 1`] = `
                   ],
                 },
               ],
+            },
+            {
+              "Action": "ssm:GetParameter",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:*:",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/football-blackjack/test/domain-name",
+                  ],
+                ],
+              },
             },
           ],
           "Version": "2012-10-17",
