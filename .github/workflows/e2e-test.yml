@@ -1,0 +1,88 @@
+name: e2e-test
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to test against
+        required: true
+        type: choice
+        options:
+          - test
+          - prod
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .tool-versions
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(pnpm --dir e2e exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.playwright-version.outputs.version }}
+      # Skips the browser download on a cache hit; --with-deps still
+      # installs the OS packages, which aren't cached
+      - name: Install Playwright browsers
+        run: pnpm --dir e2e exec playwright install --with-deps chromium
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+
+      # Belt-and-braces second masking layer: registers the account id as a
+      # masked value for all subsequent log output in this job
+      - name: Mask AWS account id
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+          echo "::add-mask::${ACCOUNT_ID}"
+
+      # Domain names never appear in the repo; the target URL is read from
+      # SSM at run time and masked in the (public) logs
+      - name: Resolve the target URL from SSM
+        run: |
+          DOMAIN=$(aws ssm get-parameter \
+            --name "/football-blackjack/${{ inputs.environment }}/domain-name" \
+            --query 'Parameter.Value' --output text)
+          echo "::add-mask::${DOMAIN}"
+          echo "BASE_URL=https://${DOMAIN}" >> "$GITHUB_ENV"
+
+      # Deployed environments only support the smoke subset until the
+      # deployed API serves real data (plan/10-e2e-tests.md)
+      - name: Run the smoke subset against the deployed environment
+        run: pnpm --dir e2e test --grep @smoke
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-screenshots-${{ inputs.environment }}
+          path: e2e/screenshots/
+          if-no-files-found: ignore
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-${{ inputs.environment }}
+          path: e2e/playwright-report/
+          if-no-files-found: ignore
