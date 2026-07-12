@@ -74,5 +74,12 @@ lazy val devServer = (project in file("backend/dev-server"))
     name := "dev-server",
     libraryDependencies ++= Seq(
       cask
-    )
+    ),
+    assembly / assemblyJarName := "dev-server.jar",
+    assembly / assemblyMergeStrategy := {
+      // Undertow's XNIO discovers its provider via META-INF/services
+      case PathList("META-INF", "services", _*) => MergeStrategy.concat
+      case PathList("META-INF", _*)             => MergeStrategy.discard
+      case _                                    => MergeStrategy.first
+    }
   )

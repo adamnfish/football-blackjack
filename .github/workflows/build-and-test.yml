@@ -69,10 +69,15 @@ jobs:
       # installs the OS packages, which aren't cached
       - name: Install Playwright browsers
         run: pnpm --dir e2e exec playwright install --with-deps chromium
+      # `sbt devServer/run` can't start the server here: sbt 2 delegates `run`
+      # to its client via an sbt/clientJob event that the CI runner script
+      # doesn't understand, so sbt exits successfully without launching the
+      # JVM. Build a jar and run it directly instead.
       - name: Start the dev server
         run: |
-          nohup sbt --batch devServer/run > devserver.log 2>&1 &
-          for i in $(seq 1 90); do
+          sbt --batch devServer/assembly
+          nohup java -jar target/out/jvm/scala-3.8.4/dev-server/dev-server.jar > devserver.log 2>&1 &
+          for i in $(seq 1 30); do
             if curl --fail -s -o /dev/null -X POST http://localhost:9090/api/ping; then
               echo "dev server is up"; exit 0
             fi
