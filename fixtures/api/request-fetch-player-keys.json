@@ -1,0 +1,4 @@
+{
+  "gameId": { "id": "g-123" },
+  "auth": { "playerKey": { "key": "key-abc" } }
+}

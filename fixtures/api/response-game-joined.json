@@ -1,0 +1,45 @@
+{
+  "GameJoined": {
+    "game": {
+      "id": { "id": "g-123" },
+      "gameName": { "name": "Office sweepstake" },
+      "gameSettings": { "goalLimit": 25, "teamCount": 2 },
+      "lockState": { "Auto": {} },
+      "players": [
+        {
+          "id": { "id": "p-1" },
+          "name": { "name": "Alice" },
+          "selection": [{ "id": "england" }, { "id": "scotland" }]
+        },
+        {
+          "id": { "id": "p-2" },
+          "name": { "name": "Bob" },
+          "selection": [{ "id": "england" }, { "id": "brazil" }]
+        }
+      ],
+      "gameAdmin": { "id": "p-1" },
+      "competition": {
+        "id": { "id": 1 },
+        "code": { "code": "WC" },
+        "name": { "name": "World Cup" }
+      }
+    },
+    "player": {
+      "id": { "id": "p-2" },
+      "name": { "name": "Bob" },
+      "selection": [{ "id": "england" }, { "id": "brazil" }]
+    },
+    "playerKey": { "key": "key-def" },
+    "competitionStats": {
+      "id": { "id": 1 },
+      "timestamp": "2026-06-11T18:00:00Z",
+      "teams": {
+        "{\"id\":{\"id\":\"england\"},\"tla\":{\"tla\":\"ENG\"},\"name\":{\"short\":\"England\",\"long\":\"England National Team\"},\"crestUrl\":\"https://crests.example.com/england.svg\"}": {
+          "score": { "goalsFor": 0, "goalsAgainst": 0 },
+          "progress": { "NotStarted": {} },
+          "status": { "Playing": {} }
+        }
+      }
+    }
+  }
+}

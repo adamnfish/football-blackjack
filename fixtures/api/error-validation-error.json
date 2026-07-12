@@ -1,0 +1,6 @@
+{
+  "ValidationError": {
+    "field": "gameName",
+    "message": "game name is required"
+  }
+}

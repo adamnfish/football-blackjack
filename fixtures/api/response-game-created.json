@@ -1,0 +1,45 @@
+{
+  "GameCreated": {
+    "game": {
+      "id": { "id": "g-123" },
+      "gameName": { "name": "Office sweepstake" },
+      "gameSettings": { "goalLimit": 25, "teamCount": 4 },
+      "lockState": { "Auto": {} },
+      "players": [
+        {
+          "id": { "id": "p-1" },
+          "name": { "name": "Alice" },
+          "selection": []
+        }
+      ],
+      "gameAdmin": { "id": "p-1" },
+      "competition": {
+        "id": { "id": 1 },
+        "code": { "code": "WC" },
+        "name": { "name": "World Cup" }
+      }
+    },
+    "player": {
+      "id": { "id": "p-1" },
+      "name": { "name": "Alice" },
+      "selection": []
+    },
+    "playerKey": { "key": "key-abc" },
+    "competitionStats": {
+      "id": { "id": 1 },
+      "timestamp": "2026-06-11T18:00:00Z",
+      "teams": {
+        "{\"id\":{\"id\":\"england\"},\"tla\":{\"tla\":\"ENG\"},\"name\":{\"short\":\"England\",\"long\":\"England National Team\"},\"crestUrl\":\"https://crests.example.com/england.svg\"}": {
+          "score": { "goalsFor": 0, "goalsAgainst": 0 },
+          "progress": { "NotStarted": {} },
+          "status": { "Playing": {} }
+        },
+        "{\"id\":{\"id\":\"scotland\"},\"tla\":{\"tla\":\"SCO\"},\"name\":{\"short\":\"Scotland\",\"long\":\"Scotland National Team\"},\"crestUrl\":\"\"}": {
+          "score": { "goalsFor": 0, "goalsAgainst": 0 },
+          "progress": { "NotStarted": {} },
+          "status": { "Playing": {} }
+        }
+      }
+    }
+  }
+}
