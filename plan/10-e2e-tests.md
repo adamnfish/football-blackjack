@@ -1,6 +1,6 @@
 # 10 — End-to-end tests
 
-**Status: minimal suite built (PR #7), grows in lockstep with every increment from here**
+**Status: covers the create/join/selection flows, grows in lockstep with every increment**
 
 ## Goal
 
@@ -12,7 +12,13 @@ changes.
 
 ## Current state
 
-- Nothing yet
+- Smoke tests (`@smoke`: app loads, ping) run everywhere; the e2e-test workflow
+  dispatches them against deployed environments ([09-cicd](09-cicd.md))
+- Game-flows scenario with per-step screenshots: create → creator selection →
+  join from a second browser context → selection conflict → resolution; plus
+  personal-link key storage/stripping
+- The full suite runs on PRs against the dev server; the Vite proxy target is
+  overridable via `API_PROXY_TARGET`
 
 ## Depends on
 

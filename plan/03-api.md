@@ -1,6 +1,6 @@
 # 03 — API game logic
 
-**Status: designed · Phase 2** (implemented incrementally, endpoint by endpoint)
+**Status: built** (dispatch and all endpoints, per the approach below)
 
 ## Goal
 
@@ -10,9 +10,14 @@ game and is shared by the API Lambda and the dev server.
 
 ## Current state
 
-- `API` class skeleton: every method `???`; takes only `Persistence` as a dependency
-- `Request`/`Response`/`Errors` enums fully modelled in `models/messages.scala`
-- Domain models complete with codecs and round-trip tests
+- `dispatch` and all endpoints implemented; `API` takes `Persistence` and the
+  configured competition list
+- `HttpMapping` in `common` maps the request path and `Try[Response]` to HTTP
+  status + JSON body, shared by the Lambda and the dev server (the Lambda still
+  serves its phase 1 stub until phase 5)
+- Integration tests drive `dispatch` against the in-memory persistence: happy
+  paths, error cases, the lock-state matrix, conflict retry, and property tests
+  for selection uniqueness and validation
 
 ## Depends on
 
@@ -73,6 +78,8 @@ game and is shared by the API Lambda and the dev server.
   (admin only, powers link re-sharing).
 - **New `Errors` cases**: `GameLocked`, `Unauthorized` (bad/missing player key, or
   non-admin calling an admin endpoint).
+- **`EditTeams` gained a `gameId` field** (amendment found during the build): auth
+  carries only the player key, so the request had no way to locate the game.
 
 ### Dispatch & endpoints
 

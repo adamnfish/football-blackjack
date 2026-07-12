@@ -1,6 +1,6 @@
 # 06 — Dev server
 
-**Status: phase 1 stub built (PR #7) · Phase 2 (full server, stub data) / Phase 3 (simulated clock) / Phase 4 (DynamoDB Local) still to come**
+**Status: phase 2 server built · Phase 3 (simulated clock) / Phase 4 (DynamoDB Local) still to come**
 
 ## Goal
 
@@ -15,7 +15,13 @@ disk): a local webserver that
 
 ## Current state
 
-- Nothing on disk; sbt module declared with no extra dependencies
+- Real `API.dispatch` behind `POST /api/{operation}` via the shared
+  `HttpMapping`, with in-memory persistence
+- `StubCompetitionData` serves canned `CompetitionStats` fixtures for four
+  tournament states (pre-tournament, mid-group, knockouts, finished);
+  pre-tournament stats are seeded on startup
+- `/dev` panel: run the competition job against a selected tournament state,
+  seed a four-player demo game (unlocking first if the tournament has started)
 
 ## Phased delivery
 
