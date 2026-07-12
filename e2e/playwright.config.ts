@@ -19,9 +19,9 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: localTarget
     ? {
-        command: "pnpm --dir ../frontend dev",
+        command: "pnpm --dir ../frontend dev --port 5173 --strictPort",
         url: "http://localhost:5173",
-        reuseExistingServer: true,
+        reuseExistingServer: !process.env.CI,
       }
     : undefined,
 });

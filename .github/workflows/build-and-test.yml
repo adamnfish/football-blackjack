@@ -72,7 +72,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ steps.playwright-version.outputs.version }}
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       # Skips the browser download on a cache hit; --with-deps still
       # installs the OS packages, which aren't cached
       - name: Install Playwright browsers
@@ -81,7 +81,7 @@ jobs:
         run: |
           nohup sbt --batch devServer/run > devserver.log 2>&1 &
           for i in $(seq 1 90); do
-            if curl -s -o /dev/null -X POST http://localhost:9090/api/ping; then
+            if curl --fail -s -o /dev/null -X POST http://localhost:9090/api/ping; then
               echo "dev server is up"; exit 0
             fi
             sleep 2
