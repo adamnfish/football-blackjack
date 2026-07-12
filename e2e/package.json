@@ -1,0 +1,14 @@
+{
+  "name": "@football-blackjack/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright end-to-end tests for Football Blackjack",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "@types/node": "^20.0.0"
+  }
+}
