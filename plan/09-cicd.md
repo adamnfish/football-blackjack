@@ -1,6 +1,6 @@
 # 09 — CI/CD (GitHub Actions)
 
-**Status: deploy skeleton merged (OIDC verified 2026-07-10) · build-and-test in PR #6 · next: grow deploy.yml into the real deploy, then the e2e-test workflow**
+**Status: build-and-test and the real deploy workflow built · next: first dispatch deploy to test, verify at the stage domain, then the e2e-test workflow**
 
 ## Goal
 
@@ -15,8 +15,13 @@ uses HTTP and CDK).
 
 ## Current state
 
-- Nothing: no `.github/` directory; OIDC provider + deploy roles are specified in
-  [08-infrastructure](08-infrastructure.md)'s once-per-account CI stack
+- **build-and-test**: backend, frontend, infrastructure, and e2e jobs, per the
+  workflow shape below
+- **deploy**: calls build-and-test via `workflow_call`, then builds the
+  artifacts (`sbt api/assembly`, frontend build) and runs `cdk deploy` for the
+  selected environment's stack under its OIDC role. Not yet dispatched — the
+  first deploy to test is the next step.
+- **e2e-test**: not started
 
 ## Depends on
 
@@ -49,6 +54,11 @@ Deploys are **explicitly triggered** (`workflow_dispatch`), not automatic on mer
 
 Branch testing on AWS = manually run **deploy** on the branch with the test
 environment, then **e2e-test** against test.
+
+The deploy workflow runs build-and-test by calling it as a reusable workflow
+(`workflow_call`), so the two cannot drift. Deploys to the same environment are
+serialised with a `concurrency` group; queued deploys wait rather than cancel a
+running CloudFormation deploy.
 
 ## Approach
 

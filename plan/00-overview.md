@@ -49,11 +49,13 @@ chain — merge in order [#4](https://github.com/adamnfish/football-blackjack/pu
   suite and its CI job with screenshot artifacts
   ([06-dev-server](06-dev-server.md), [10-e2e-tests](10-e2e-tests.md))
 
-**Next, once the chain merges** — the remaining phase 1 slice: grow
-`deploy.yml` into the real deploy (build-and-test → sbt assembly + frontend
-build → `cdk deploy`), first deploy to test, verify the hello-world app at the
-stage domain, then the e2e-test workflow against deployed environments
-([09-cicd](09-cicd.md)).
+The real deploy workflow (build-and-test → sbt assembly + frontend build →
+`cdk deploy`) is [#12](https://github.com/adamnfish/football-blackjack/pull/12)
+at the end of the chain ([09-cicd](09-cicd.md)).
+
+**Next, once the chain merges**: first deploy to test, verify the hello-world
+app at the stage domain, then the e2e-test workflow against deployed
+environments.
 
 Done and tested (pre-skeleton foundations):
 
@@ -110,8 +112,8 @@ suite: page loads + screenshot, `/api/ping` is 200 ([10-e2e-tests](10-e2e-tests.
 **Done when** the test environment serves the hello-world frontend at its domain
 and `POST /api/ping` returns 200 through CloudFront; PRs run build-and-test
 including the local e2e suite with screenshot artifacts; a prod deploy works the
-same way. **In progress: everything except the real deploy workflow is built,
-in PRs #4–#7 (see Current state).**
+same way. **In progress: everything is built, in PRs #4–#7 and #12 (see
+Current state); the first deploy and the e2e-test workflow remain.**
 
 ### Phase 2 — working backwards from the UI
 
@@ -240,5 +242,5 @@ fail the build ([08-infrastructure](08-infrastructure.md)).
 | [06-dev-server](06-dev-server.md) | local dev server | stub in PR #7 | 1 (stub), 2–4 (grows) |
 | [07-frontend](07-frontend.md) | Elm SPA | designed | 1 (hello world), 2 (flows) |
 | [08-infrastructure](08-infrastructure.md) | CDK infrastructure | CI stack deployed; app stacks in PR #5 | 0–1 (skeleton), 4–5 (data layer) |
-| [09-cicd](09-cicd.md) | GitHub Actions CI/CD | build-and-test in PR #6; deploy skeleton merged, real deploy pending | 1 |
+| [09-cicd](09-cicd.md) | GitHub Actions CI/CD | build-and-test in PR #6; real deploy in PR #12; e2e-test workflow pending | 1 |
 | [10-e2e-tests](10-e2e-tests.md) | end-to-end tests | minimal suite in PR #7 | 1, then continuous |

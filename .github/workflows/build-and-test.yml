@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Called by the deploy workflow, which runs the full suite before deploying
+  workflow_call:
 
 jobs:
   backend:
@@ -48,16 +50,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: sbt
-      - uses: sbt/setup-sbt@v1
+      - uses: guardian/setup-scala@v1
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .tool-versions
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Get Playwright version
@@ -72,10 +69,15 @@ jobs:
       # installs the OS packages, which aren't cached
       - name: Install Playwright browsers
         run: pnpm --dir e2e exec playwright install --with-deps chromium
+      # `sbt devServer/run` can't start the server here: sbt 2 delegates `run`
+      # to its client via an sbt/clientJob event that the CI runner script
+      # doesn't understand, so sbt exits successfully without launching the
+      # JVM. Build a jar and run it directly instead.
       - name: Start the dev server
         run: |
-          nohup sbt --batch devServer/run > devserver.log 2>&1 &
-          for i in $(seq 1 90); do
+          sbt --batch devServer/assembly
+          nohup java -jar target/out/jvm/scala-3.8.4/dev-server/dev-server.jar > devserver.log 2>&1 &
+          for i in $(seq 1 30); do
             if curl --fail -s -o /dev/null -X POST http://localhost:9090/api/ping; then
               echo "dev server is up"; exit 0
             fi
