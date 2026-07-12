@@ -7,65 +7,11 @@ import munit.FunSuite
 import java.time.Instant
 import scala.util.{Failure, Try}
 
-/** Integration tests for the assembled API: an in-memory Persistence seeded
-  * with competition stats, driven through `dispatch` with operation + JSON body
-  * (see the test strategy in plan/00-overview.md).
+/** Integration tests for dispatch and the phase 2 core endpoints: ping,
+  * createGame, fetchGameInfo. The remaining endpoints are covered in
+  * APIEndpointsTest.
   */
-class APITest extends FunSuite {
-  val competition: Competition =
-    Competition(
-      CompetitionId(1),
-      CompetitionCode("WC"),
-      CompetitionName("World Cup")
-    )
-
-  def team(id: String): Team =
-    Team(
-      TeamId(id),
-      TeamTLA(id.take(3).toUpperCase),
-      TeamName(id, id),
-      s"https://example.com/$id.png"
-    )
-
-  /** Pre-tournament stats: nothing has kicked off yet. */
-  def preTournamentStats: CompetitionStats =
-    CompetitionStats(
-      competition.id,
-      Instant.parse("2022-11-01T00:00:00Z"),
-      List("england", "brazil", "france", "japan", "senegal").map { name =>
-        team(name) -> TeamStats(
-          Score(0, 0),
-          Progress.NotStarted,
-          Status.Playing
-        )
-      }.toMap
-    )
-
-  case class Ctx(api: API, persistence: InMemoryPersistence)
-
-  def apiFixture(
-      stats: Option[CompetitionStats] = Some(preTournamentStats)
-  ): Ctx = {
-    val persistence = new InMemoryPersistence()
-    stats.foreach(persistence.saveCompetitionStats(_).get)
-    Ctx(new API(persistence, List(competition)), persistence)
-  }
-
-  def expectErrors(result: Try[Response]): Errors =
-    result match {
-      case Failure(ApiError(errors)) => errors
-      case other => fail(s"expected an ApiError failure, got $other")
-    }
-
-  val createGameBody =
-    """{"gameName":{"name":"world cup"},"gameSettings":{"goalLimit":25,"teamCount":4},"competitionCode":{"code":"WC"},"playerName":{"name":"alice"}}"""
-
-  def createGame(api: API): Response.GameCreated =
-    api.dispatch("create-game", createGameBody).get match {
-      case created: Response.GameCreated => created
-      case other => fail(s"expected GameCreated, got $other")
-    }
-
+class APITest extends FunSuite with APITestSupport {
   test("ping answers a Ping response") {
     val Ctx(api, _) = apiFixture()
     assertEquals(api.dispatch("ping", ""), Try(Response.Ping()))
