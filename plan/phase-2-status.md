@@ -1,7 +1,7 @@
 # Phase 2 — status (2026-07-12)
 
 First tranche of phase 2 built, plus the e2e-test workflow from phase 1. Seven
-draft PRs across three independent chains, awaiting review.
+PRs across three independent chains, reviewed and verified, ready to merge.
 
 ## PR chains
 
@@ -30,9 +30,8 @@ Frontend (stacked, independent of the backend chain):
 6. [#22](https://github.com/adamnfish/football-blackjack/pull/22)
    `phase2-frontend-flows` — create/join/selection flows, golden-sample codec
    fixtures (`fixtures/api/`), Playwright scenarios with per-step screenshots.
-   Code complete; paused before a final e2e re-run (see the PR's status
-   section). Passed 4/4 against a live instance of the `phase2-dev-server`
-   code.
+   Complete and verified: the e2e suite passed 4/4 against a local merge with
+   `phase2-dev-server`, with all 9 step screenshots.
 
 Standalone:
 
@@ -52,14 +51,15 @@ Standalone:
 - Elm codecs were aligned with the actual Scala code on the backend branches,
   verified by golden-sample tests (munit side lands after the backend chain
   merges).
-- Known one-line conflict in `e2e/tests/api.spec.ts` between #21 and #22 (both
-  touch the ping assertion). The tolerant version from #22 is the keeper for
-  whichever merges second.
+- Known one-line conflict in `e2e/tests/api.spec.ts` between #17, #21 and #22
+  (#17 tags the ping test `@smoke`, #21 and #22 change the body assertion). The
+  merged result needs the `@smoke` tag and #22's tolerant assertion.
+- All seven PRs reviewed 2026-07-12: no correctness issues found.
 
 ## Next steps
 
-1. Re-verify #22's e2e suite against a local merge with `phase2-dev-server`
-   (steps in the #22 status section); mark PRs ready.
+1. ~~Re-verify #22's e2e suite against a local merge with `phase2-dev-server`~~
+   Done: 4/4 passed with all 9 step screenshots. PRs marked ready.
 2. Merge the chains; update [00-overview](00-overview.md) status table.
 3. First dispatch deploy to test (outstanding from phase 1), CI stack redeploy,
    then dispatch the e2e-test workflow.
