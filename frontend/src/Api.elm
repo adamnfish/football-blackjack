@@ -14,6 +14,8 @@ module Api exposing
     , errorsDecoder
     , fetchGameInfo
     , fetchGameInfoEncoder
+    , fetchPlayerKeys
+    , fetchPlayerKeysEncoder
     , gameCreatedDecoder
     , gameInfoFetchedDecoder
     , gameJoinedDecoder
@@ -22,6 +24,7 @@ module Api exposing
     , lockGame
     , lockGameEncoder
     , ping
+    , playerKeysFetchedDecoder
     , teamsEditedDecoder
     , unlockGame
     , unlockGameEncoder
@@ -151,9 +154,9 @@ type alias TeamsEdited =
     }
 
 
-editTeams : List TeamId -> PlayerKey -> (Result ApiError TeamsEdited -> msg) -> Cmd msg
-editTeams teams playerKey toMsg =
-    post "edit-teams" (editTeamsEncoder teams playerKey) teamsEditedDecoder toMsg
+editTeams : GameId -> List TeamId -> PlayerKey -> (Result ApiError TeamsEdited -> msg) -> Cmd msg
+editTeams gameId teams playerKey toMsg =
+    post "edit-teams" (editTeamsEncoder gameId teams playerKey) teamsEditedDecoder toMsg
 
 
 lockGame : GameId -> PlayerKey -> (Result ApiError () -> msg) -> Cmd msg
@@ -181,6 +184,16 @@ type alias GameInfoFetched =
 fetchGameInfo : GameId -> (Result ApiError GameInfoFetched -> msg) -> Cmd msg
 fetchGameInfo gameId toMsg =
     post "fetch-game-info" (fetchGameInfoEncoder gameId) gameInfoFetchedDecoder toMsg
+
+
+{-| Admin only: every player's key, for re-sharing personal links.
+-}
+fetchPlayerKeys : GameId -> PlayerKey -> (Result ApiError (List ( PlayerId, PlayerKey )) -> msg) -> Cmd msg
+fetchPlayerKeys gameId playerKey toMsg =
+    post "fetch-player-keys"
+        (fetchPlayerKeysEncoder gameId playerKey)
+        playerKeysFetchedDecoder
+        toMsg
 
 
 
@@ -256,10 +269,11 @@ joinGameEncoder request =
         ]
 
 
-editTeamsEncoder : List TeamId -> PlayerKey -> Encode.Value
-editTeamsEncoder teams playerKey =
+editTeamsEncoder : GameId -> List TeamId -> PlayerKey -> Encode.Value
+editTeamsEncoder gameId teams playerKey =
     Encode.object
-        [ ( "teams", Encode.list teamIdEncoder teams )
+        [ ( "gameId", gameIdEncoder gameId )
+        , ( "teams", Encode.list teamIdEncoder teams )
         , ( "auth", authEncoder playerKey )
         ]
 
@@ -283,6 +297,14 @@ unlockGameEncoder gameId playerKey =
 fetchGameInfoEncoder : GameId -> Encode.Value
 fetchGameInfoEncoder gameId =
     Encode.object [ ( "gameId", gameIdEncoder gameId ) ]
+
+
+fetchPlayerKeysEncoder : GameId -> PlayerKey -> Encode.Value
+fetchPlayerKeysEncoder gameId playerKey =
+    Encode.object
+        [ ( "gameId", gameIdEncoder gameId )
+        , ( "auth", authEncoder playerKey )
+        ]
 
 
 authEncoder : PlayerKey -> Encode.Value
@@ -370,6 +392,19 @@ gameInfoFetchedDecoder =
         (Decode.map2 GameInfoFetched
             (Decode.field "game" gameDecoder)
             (Decode.field "competitionStats" competitionStatsDecoder)
+        )
+
+
+{-| `PlayerKeysFetched.playerKeys` is a `Map[PlayerId, PlayerKey]`: the
+`PlayerId` keys encode as their bare id string.
+-}
+playerKeysFetchedDecoder : Decoder (List ( PlayerId, PlayerKey ))
+playerKeysFetchedDecoder =
+    Decode.field "PlayerKeysFetched"
+        (Decode.field "playerKeys"
+            (Decode.keyValuePairs playerKeyDecoder
+                |> Decode.map (List.map (Tuple.mapFirst PlayerId))
+            )
         )
 
 
