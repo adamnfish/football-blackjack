@@ -1,6 +1,6 @@
 # 04 — Competition job
 
-**Status: designed · Phase 5** (can interleave with phases 3–4 once its collaborators exist)
+**Status: core logic built · Phase 5 (scheduled Lambda wiring)**
 
 ## Goal
 
@@ -12,9 +12,14 @@ dev server can trigger manually.
 
 ## Current state
 
-- Class skeleton taking `Persistence` and `CompetitionData`; method `???`
-- Both collaborator traits defined; designs done
-  ([01](01-football-data.md), [02](02-persistence.md))
+- `fetchCompetition` implemented: fetch via `CompetitionData`, append the
+  snapshot via `saveCompetitionStats`; failures propagate and the previous
+  snapshot stays in place, per the decided failure behaviour. Tested with a
+  stubbed `CompetitionData`.
+- Triggered manually from the dev server's `/dev` panel against its stub
+  `CompetitionData` ([06-dev-server](06-dev-server.md)); the real
+  `CompetitionData` implementation ([01](01-football-data.md)) and the
+  scheduled data-service Lambda ([05-lambdas](05-lambdas.md)) remain.
 
 ## Depends on
 

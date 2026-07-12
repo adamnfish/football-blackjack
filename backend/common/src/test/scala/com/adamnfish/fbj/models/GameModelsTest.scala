@@ -54,7 +54,7 @@ class GameModelsTest extends FunSuite {
       GameId("game-1"),
       GameName("world cup"),
       GameSettings(3, 8),
-      locked = false,
+      LockState.Auto,
       List(player("adam", List(TeamId("england")))),
       PlayerId("adam"),
       competition
@@ -81,6 +81,13 @@ class GameModelsTest extends FunSuite {
     val values = List(Status.Eliminated, Status.Playing)
     values.foreach { value =>
       assertEquals(decode[Status](value.asJson.noSpaces), Right(value))
+    }
+  }
+
+  test("LockState round trips through JSON, for every case") {
+    val values = List(LockState.Auto, LockState.Locked, LockState.Unlocked)
+    values.foreach { value =>
+      assertEquals(decode[LockState](value.asJson.noSpaces), Right(value))
     }
   }
 

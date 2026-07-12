@@ -27,7 +27,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: elm-format check
-        run: pnpm --dir frontend exec elm-format --validate src/
+        run: pnpm --dir frontend exec elm-format --validate src/ tests/
+      - name: elm-test
+        run: pnpm --dir frontend test
       - name: Build frontend
         run: pnpm --dir frontend build
 

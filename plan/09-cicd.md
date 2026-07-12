@@ -1,6 +1,6 @@
 # 09 — CI/CD (GitHub Actions)
 
-**Status: build-and-test and the real deploy workflow built · next: first dispatch deploy to test, verify at the stage domain, then the e2e-test workflow**
+**Status: all three workflows built · next: first dispatch deploy to test, verify at the stage domain, then run e2e-test against it**
 
 ## Goal
 
@@ -21,7 +21,12 @@ uses HTTP and CDK).
   artifacts (`sbt api/assembly`, frontend build) and runs `cdk deploy` for the
   selected environment's stack under its OIDC role. Not yet dispatched — the
   first deploy to test is the next step.
-- **e2e-test**: not started
+- **e2e-test**: dispatches against the selected environment's deployed app.
+  Reads the stage domain from SSM under the environment's OIDC role (the deploy
+  roles hold `ssm:GetParameter` on the stage's `domain-name` parameter — the CI
+  stack must be redeployed manually when that changes) and runs the
+  `@smoke`-tagged subset of the Playwright suite against it. Not yet run — it
+  needs the first deploy.
 
 ## Depends on
 

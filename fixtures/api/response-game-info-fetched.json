@@ -1,0 +1,44 @@
+{
+  "GameInfoFetched": {
+    "game": {
+      "id": { "id": "g-123" },
+      "gameName": { "name": "Office sweepstake" },
+      "gameSettings": { "goalLimit": 25, "teamCount": 2 },
+      "lockState": { "Locked": {} },
+      "players": [
+        {
+          "id": { "id": "p-1" },
+          "name": { "name": "Alice" },
+          "selection": [{ "id": "england" }, { "id": "france" }]
+        }
+      ],
+      "gameAdmin": { "id": "p-1" },
+      "competition": {
+        "id": { "id": 1 },
+        "code": { "code": "WC" },
+        "name": { "name": "World Cup" }
+      }
+    },
+    "competitionStats": {
+      "id": { "id": 1 },
+      "timestamp": "2026-07-02T20:30:00Z",
+      "teams": {
+        "{\"id\":{\"id\":\"england\"},\"tla\":{\"tla\":\"ENG\"},\"name\":{\"short\":\"England\",\"long\":\"England National Team\"},\"crestUrl\":\"https://crests.example.com/england.svg\"}": {
+          "score": { "goalsFor": 7, "goalsAgainst": 2 },
+          "progress": { "Group": { "matchCount": 3 } },
+          "status": { "Playing": {} }
+        },
+        "{\"id\":{\"id\":\"france\"},\"tla\":{\"tla\":\"FRA\"},\"name\":{\"short\":\"France\",\"long\":\"France National Team\"},\"crestUrl\":\"https://crests.example.com/france.svg\"}": {
+          "score": { "goalsFor": 11, "goalsAgainst": 3 },
+          "progress": { "TopFour": { "rank": 1 } },
+          "status": { "Playing": {} }
+        },
+        "{\"id\":{\"id\":\"brazil\"},\"tla\":{\"tla\":\"BRA\"},\"name\":{\"short\":\"Brazil\",\"long\":\"Brazil National Team\"},\"crestUrl\":\"https://crests.example.com/brazil.svg\"}": {
+          "score": { "goalsFor": 5, "goalsAgainst": 4 },
+          "progress": { "Knockout": { "size": 8 } },
+          "status": { "Eliminated": {} }
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # 07 — Frontend SPA
 
-**Status: designed · Phase 1 (hello world deployed) / Phase 2 (flows, incremental)**
+**Status: create/join/selection flows built · remaining phase 2: game view, analysis views, admin panel**
 
 ## Goal
 
@@ -10,9 +10,19 @@ game-management controls.
 
 ## Current state
 
-- Hello-world shell: `Browser.element`, empty model, static `View.view`
-- Elm 0.19 + elm-ui 1.1.8, bundled by Vite (`vite-plugin-elm`), pnpm workspace
-- No routing, no HTTP, no ports, no test setup
+- Skeleton per the structure below: `Browser.application`, `Route`, `Api` (all
+  8 operations with hand-written codecs), `Ports` + localStorage key handling,
+  elm-test in CI
+- Create/join/selection flows: create form on the home page, join form and
+  selection screen on the game page's state machine, plus a placeholder game
+  view (players and their selections)
+- Codecs kept honest by golden-sample tests against `fixtures/api/` (elm-test
+  side; the munit side lands now the backend model changes are merged)
+- Each flow has its Playwright scenario with per-step screenshots
+  ([10-e2e-tests](10-e2e-tests.md))
+- Remaining, in build order: full game view (leaderboard, totals, bust, 60s
+  poll + focus refresh), analysis views, admin panel (lock/unlock, re-share
+  links)
 
 ## Depends on
 

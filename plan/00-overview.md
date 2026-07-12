@@ -31,31 +31,30 @@ the CI stack (the two GHA deploy roles) deployed, `test`/`prod` GHA
 environments configured, OIDC verified from both environments via the deploy
 workflow skeleton. As-built record: [docs/bootstrap.md](../docs/bootstrap.md).
 
-**Phase 1 slices 1–4 are built and pushed**, awaiting review as a stacked PR
-chain — merge in order [#4](https://github.com/adamnfish/football-blackjack/pull/4)
-→ [#5](https://github.com/adamnfish/football-blackjack/pull/5)
-→ [#6](https://github.com/adamnfish/football-blackjack/pull/6)
-→ [#7](https://github.com/adamnfish/football-blackjack/pull/7)
-(GitHub retargets each as its base merges):
+**Phase 1 is built and merged** (PRs #4–#7, #12): stub api Lambda, skeleton
+app stacks, build-and-test and deploy workflows, stub dev server, minimal e2e
+suite. The first dispatch deploy to test and its verification remain.
 
-- **#4** stub api Lambda (200 "ok" to any `POST /api/{operation}`) +
-  sbt-assembly packaging ([05-lambdas](05-lambdas.md))
-- **#5** skeleton app stacks — CloudFront/S3/HTTP API/Lambda, SSM-resolved
-  domain config, DNS records — with per-stage snapshot tests
-  ([08-infrastructure](08-infrastructure.md))
-- **#6** build-and-test workflow: backend, frontend, and infrastructure jobs
-  ([09-cicd](09-cicd.md))
-- **#7** stub Cask dev server + Vite `/api` proxy + minimal Playwright e2e
-  suite and its CI job with screenshot artifacts
-  ([06-dev-server](06-dev-server.md), [10-e2e-tests](10-e2e-tests.md))
+**Phase 2 first tranche is merged** (2026-07-12, PRs #16–#23 — as-built record:
+[phase-2-status](phase-2-status.md)):
 
-The real deploy workflow (build-and-test → sbt assembly + frontend build →
-`cdk deploy`) is [#12](https://github.com/adamnfish/football-blackjack/pull/12)
-at the end of the chain ([09-cicd](09-cicd.md)).
+- in-memory `Persistence` + contract test suite ([02-persistence](02-persistence.md))
+- `API.dispatch` and all endpoints, with the shared `HttpMapping`
+  ([03-api](03-api.md))
+- `CompetitionJob.fetchCompetition` core logic
+  ([04-competition-job](04-competition-job.md))
+- dev server serving the real API on canned stats fixtures, with the `/dev`
+  panel ([06-dev-server](06-dev-server.md))
+- frontend skeleton and the create/join/selection flows, verified by Playwright
+  scenarios with per-step screenshots ([07-frontend](07-frontend.md),
+  [10-e2e-tests](10-e2e-tests.md))
+- the e2e-test workflow for deployed environments ([09-cicd](09-cicd.md)) — the
+  CI stack needs a manual redeploy (new scoped `ssm:GetParameter`) before its
+  first dispatch
 
-**Next, once the chain merges**: first deploy to test, verify the hello-world
-app at the stage domain, then the e2e-test workflow against deployed
-environments.
+**Next**: first dispatch deploy to test, CI stack redeploy, e2e-test workflow
+dispatch; then the rest of phase 2 (full game view, analysis views, admin
+panel, munit golden tests).
 
 Done and tested (pre-skeleton foundations):
 
@@ -65,15 +64,15 @@ Done and tested (pre-skeleton foundations):
 
 Stubbed (`???`):
 
-- `API.scala` — dispatch + 7 endpoints
-- `CompetitionJob.scala`
-- `FootballData.fetchCompetitionStats` / `convertDataToStats`
+- `FootballData.fetchCompetitionStats` / `convertDataToStats` (phase 3)
+- The deployed api Lambda still answers 200 `"ok"`; real dispatch + store is
+  phase 5
 
 Missing entirely:
 
-- Any `Persistence` implementation
+- DynamoDB `Persistence` implementation (phase 4)
 - `backend/data-service` (declared in `build.sbt`, no sources until phase 5)
-- Frontend beyond the hello-world Elm shell
+- Frontend game view (leaderboard), analysis views, admin panel
 
 ## Build strategy: walking skeleton
 
@@ -112,8 +111,8 @@ suite: page loads + screenshot, `/api/ping` is 200 ([10-e2e-tests](10-e2e-tests.
 **Done when** the test environment serves the hello-world frontend at its domain
 and `POST /api/ping` returns 200 through CloudFront; PRs run build-and-test
 including the local e2e suite with screenshot artifacts; a prod deploy works the
-same way. **In progress: everything is built, in PRs #4–#7 and #12 (see
-Current state); the first deploy and the e2e-test workflow remain.**
+same way. **In progress: everything is built and merged; the first dispatch
+deploy to test and its verification remain.**
 
 ### Phase 2 — working backwards from the UI
 
@@ -128,6 +127,8 @@ by a Playwright scenario.
 **Done when** a full game can be played locally end to end on fixture data, with
 the e2e suite covering every flow. (Deployed environments stay at skeleton
 behaviour until phase 5 — the deployed API has no data layer yet.)
+**In progress: first tranche merged (see Current state); remaining: full game
+view, analysis views, admin panel, munit golden-sample tests.**
 
 ### Phase 3 — real conversions
 
@@ -235,12 +236,12 @@ fail the build ([08-infrastructure](08-infrastructure.md)).
 | Doc | Piece | Status | Phase(s) |
 |---|---|---|---|
 | [01-football-data](01-football-data.md) | football-data fetch + conversion | designed | 3 |
-| [02-persistence](02-persistence.md) | persistence implementations | designed | 2 (in-memory), 4 (DynamoDB) |
-| [03-api](03-api.md) | API game logic | designed | 2 (incremental) |
-| [04-competition-job](04-competition-job.md) | competition job | designed | 5 |
-| [05-lambdas](05-lambdas.md) | Lambda handlers | api stub in PR #4 | 1 (api stub), 5 (full) |
-| [06-dev-server](06-dev-server.md) | local dev server | stub in PR #7 | 1 (stub), 2–4 (grows) |
-| [07-frontend](07-frontend.md) | Elm SPA | designed | 1 (hello world), 2 (flows) |
-| [08-infrastructure](08-infrastructure.md) | CDK infrastructure | CI stack deployed; app stacks in PR #5 | 0–1 (skeleton), 4–5 (data layer) |
-| [09-cicd](09-cicd.md) | GitHub Actions CI/CD | build-and-test in PR #6; real deploy in PR #12; e2e-test workflow pending | 1 |
-| [10-e2e-tests](10-e2e-tests.md) | end-to-end tests | minimal suite in PR #7 | 1, then continuous |
+| [02-persistence](02-persistence.md) | persistence implementations | in-memory built | 2 (in-memory), 4 (DynamoDB) |
+| [03-api](03-api.md) | API game logic | built | 2 |
+| [04-competition-job](04-competition-job.md) | competition job | core logic built | 5 (Lambda wiring) |
+| [05-lambdas](05-lambdas.md) | Lambda handlers | api stub merged | 1 (api stub), 5 (full) |
+| [06-dev-server](06-dev-server.md) | local dev server | phase 2 server built | 2–4 (grows) |
+| [07-frontend](07-frontend.md) | Elm SPA | create/join/selection flows built | 2 (game view, analysis, admin remain) |
+| [08-infrastructure](08-infrastructure.md) | CDK infrastructure | CI stack deployed (manual redeploy pending); app stacks merged | 0–1 (skeleton), 4–5 (data layer) |
+| [09-cicd](09-cicd.md) | GitHub Actions CI/CD | all three workflows built; first deploy dispatch pending | 1 |
+| [10-e2e-tests](10-e2e-tests.md) | end-to-end tests | covers current flows | continuous |

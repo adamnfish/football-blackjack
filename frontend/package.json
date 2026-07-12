@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "elm-test"
+    "test": "node scripts/generate-fixtures.mjs && elm-test"
   },
   "devDependencies": {
     "elm": "^0.19.2-0",

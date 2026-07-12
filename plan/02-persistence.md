@@ -1,6 +1,6 @@
 # 02 — Persistence implementations
 
-**Status: designed · Phase 2 (in-memory) / Phase 4 (DynamoDB)**
+**Status: in-memory built · Phase 4 (DynamoDB)**
 
 ## Goal
 
@@ -15,11 +15,15 @@ The trait is whole-document load/save for two record types: `Game` (keyed by
 
 ## Current state
 
-- Trait defined; no implementations anywhere
-- All persisted types already have circe codecs (including the
-  `Map[Team, TeamStats]` key encoding on `CompetitionStats`)
+- Trait finalised per the approach below: `Versioned[GameRecord]` loads/saves,
+  `Try[Option[...]]` reads, conditional saves failing with
+  `ConcurrentModification`
+- `InMemoryPersistence` in `common` main sources, used by the API integration
+  tests and the dev server
+- `PersistenceContractTests` behavioural suite runs against the in-memory
+  implementation; ready to run against the DynamoDB adapter when it exists
 - `Dependencies.scala` has `awsCrtClient` defined but no store-specific AWS SDK
-  module yet
+  module yet; the DynamoDB implementation (phase 4) is unstarted
 
 ## Depends on
 

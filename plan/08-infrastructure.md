@@ -1,6 +1,6 @@
 # 08 — Infrastructure (CDK)
 
-**Status: phase 0 complete (CI stack deployed 2026-07-10) · phase 1 skeleton stacks built (PR #5) · Phases 4–5 (data layer) still to come**
+**Status: phase 0 complete (CI stack deployed 2026-07-10; manual redeploy pending for the e2e-test SSM permission) · phase 1 skeleton stacks merged · Phases 4–5 (data layer) still to come**
 
 ## Goal
 

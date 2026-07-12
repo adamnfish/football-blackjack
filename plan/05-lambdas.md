@@ -1,6 +1,6 @@
 # 05 — Lambda handlers (api, data-service)
 
-**Status: api stub built (PR #4) · Phase 5 (real wiring + data-service) still to come**
+**Status: api stub merged · Phase 5 (real wiring + data-service) still to come**
 
 ## Goal
 

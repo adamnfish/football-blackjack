@@ -22,3 +22,6 @@ elm-stuff/
 # OS
 .DS_Store
 
+
+# Generated golden-sample module (scripts/generate-fixtures.mjs)
+frontend/tests/Generated/

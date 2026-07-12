@@ -1,0 +1,5 @@
+{
+  "gameId": { "id": "g-123" },
+  "playerName": { "name": "Bob" },
+  "teams": [{ "id": "england" }, { "id": "brazil" }]
+}
