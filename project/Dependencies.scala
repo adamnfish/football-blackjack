@@ -9,10 +9,10 @@ object Dependencies {
   )
 
   lazy val sttp = Seq(
-    "com.softwaremill.sttp.client4" %% "core" % "4.0.25"
+    "com.softwaremill.sttp.client4" %% "core" % "4.0.26"
   )
 
-  val awsJavaSdkVersion = "2.47.0"
+  val awsJavaSdkVersion = "2.47.5"
   lazy val lambdaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.4.0"
   lazy val lambdaEvents = "com.amazonaws" % "aws-lambda-java-events" % "3.16.1"
   lazy val awsCrtClient =
@@ -20,5 +20,5 @@ object Dependencies {
 
   lazy val cask = "com.lihaoyi" %% "cask" % "0.11.3"
 
-  lazy val munit = "org.scalameta" %% "munit" % "1.3.3"
+  lazy val munit = "org.scalameta" %% "munit" % "1.3.4"
 }

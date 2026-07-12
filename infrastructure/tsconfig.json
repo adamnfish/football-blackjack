@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node"
+    "types": ["node"],
+    "moduleResolution": "bundler"
   },
   "include": ["lib/**/*", "test/**/*"],
   "exclude": ["node_modules", "cdk.out"]
