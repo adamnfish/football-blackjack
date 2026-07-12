@@ -1,6 +1,6 @@
 # 10 — End-to-end tests
 
-**Status: designed · Phase 1 (minimal suite), then grows in lockstep with every increment**
+**Status: minimal suite built (PR #7), grows in lockstep with every increment from here**
 
 ## Goal
 

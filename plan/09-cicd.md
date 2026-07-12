@@ -1,6 +1,6 @@
 # 09 — CI/CD (GitHub Actions)
 
-**Status: designed · Phase 1** (workflows are part of the walking skeleton)
+**Status: deploy skeleton merged (OIDC verified 2026-07-10) · build-and-test in PR #6 · next: grow deploy.yml into the real deploy, then the e2e-test workflow**
 
 ## Goal
 

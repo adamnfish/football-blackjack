@@ -1,6 +1,6 @@
 # 06 — Dev server
 
-**Status: designed · Phase 1 (stub) / Phase 2 (full server, stub data) / Phase 3 (simulated clock) / Phase 4 (DynamoDB Local)**
+**Status: phase 1 stub built (PR #7) · Phase 2 (full server, stub data) / Phase 3 (simulated clock) / Phase 4 (DynamoDB Local) still to come**
 
 ## Goal
 
