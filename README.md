@@ -49,6 +49,17 @@ project that contains the backend's logic.
 
 The AWS infrastructure is provisioned by a CDK app under [infrastructure/](infrastructure/).
 
+### Running locally
+
+```
+pnpm install               # once, from the repository root
+sbt devServer/run          # API on http://localhost:9090
+pnpm --dir frontend dev    # frontend on http://localhost:5173, proxies /api to the dev server
+pnpm --dir e2e test        # Playwright e2e tests (expects the dev server to be running)
+```
+
+See [docs/dev-server.md](docs/dev-server.md) for more detail.
+
 ### Frontend
 
 Provides web UIs for the game, team selection, results tables and game analysis.

@@ -10,6 +10,11 @@ package com.adamnfish.fbj.devserver
 object DevServer extends cask.MainRoutes {
   override def port: Int = 9090
 
+  override def main(args: Array[String]): Unit = {
+    super.main(args)
+    println(s"Dev server listening on http://$host:$port")
+  }
+
   @cask.post("/api/:operation")
   def api(operation: String): String =
     "ok"
